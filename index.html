@@ -923,7 +923,7 @@ function calculate() {
     ? homePrice * (parseFloat(document.getElementById('downPct').value)||0) / 100
     : parseFloat(document.getElementById('downAmt').value)||0;
 
-  const YEARS = 30;
+  const YEARS = 30 + rentPeriodYears;
 
   // ---- SCENARIO A: BUY NOW ----
   const loanA = homePrice - dp;
@@ -1183,39 +1183,42 @@ function calculate() {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
         ${breakevenYear
           ? `<div class="breakeven-badge" style="margin-bottom:0;">✅ Break-even at Year ${breakevenYear} — Buying pulls ahead</div>`
-          : `<div class="breakeven-badge no-breakeven" style="margin-bottom:0;">⚠️ Buying never catches up to renting + investing over 30 years</div>`
+          : `<div class="breakeven-badge no-breakeven" style="margin-bottom:0;">⚠️ Buying never catches up to renting + investing over ${YEARS} years</div>`
         }
         <span class="info-icon" style="flex-shrink:0;">i<span class="tooltip" style="width:250px;">${breakevenYear
           ? `Year ${breakevenYear} is when your home equity finally surpasses what you'd have if you'd rented and invested the down payment instead. Before this point, renting + investing is ahead.`
-          : `Based on these numbers, renting and investing the down payment builds more wealth over 30 years than buying. Try adjusting appreciation, rent increase, or investment return to see how it changes.`
+          : `Based on these numbers, renting and investing the down payment builds more wealth over ${YEARS} years than buying. Try adjusting appreciation, rent increase, or investment return to see how it changes.`
         }</span></span>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-3);margin-bottom:10px;font-style:italic;">
+        📊 Comparing all scenarios over <strong>${YEARS} years</strong>${rentPeriodYears>0?` — extended from 30 to match the ${rentPeriodYears}-year rent period`:''}
       </div>
       <div class="summary-cards">
         <div class="card ${winner==='buy'?'green':''}">
-          <div class="card-label" style="display:flex;align-items:center;gap:5px;">Buy Now — 30yr Net Equity
-            <span class="info-icon">i<span class="tooltip">If you buy the home today, this is how much equity you'd have built after 30 years — meaning your home's value minus what's left on the loan. Think of it as what you'd pocket if you sold the house at the end.</span></span>
+          <div class="card-label" style="display:flex;align-items:center;gap:5px;">Buy Now — ${YEARS}yr Net Equity
+            <span class="info-icon">i<span class="tooltip">If you buy the home today, this is how much equity you'd have built after ${YEARS} years — meaning your home's value minus what's left on the loan. The mortgage is fully paid off at year ${loanTerm}, so years ${loanTerm+1}–${YEARS} are pure equity growth.</span></span>
           </div>
           <div class="card-value">${fmtK(finalBuyWealth)}</div>
-          <div class="card-sub">Home equity after ${loanTerm}yr mortgage</div>
+          <div class="card-sub">Home equity after ${YEARS}yr total window</div>
         </div>
         <div class="card ${winner==='rent'?'green':''}">
-          <div class="card-label" style="display:flex;align-items:center;gap:5px;">Rent + Invest — 30yr Wealth
-            <span class="info-icon">i<span class="tooltip">If you rent instead of buying, you invest both your down payment AND what would've been closing costs in the market. This is how much that combined investment would be worth after 30 years. No home equity, but no mortgage or closing fees either.</span></span>
+          <div class="card-label" style="display:flex;align-items:center;gap:5px;">Rent + Invest — ${YEARS}yr Wealth
+            <span class="info-icon">i<span class="tooltip">If you rent instead of buying, you invest both your down payment AND what would've been closing costs in the market. This is how much that combined investment would be worth after ${YEARS} years of renting and investing the full time.</span></span>
           </div>
           <div class="card-value">${fmtK(finalRentWealth)}</div>
           <div class="card-sub">Down payment + closing costs invested at ${investReturn}%/yr</div>
         </div>
         ${rentPeriodYears > 0 ? `
         <div class="card blue">
-          <div class="card-label" style="display:flex;align-items:center;gap:5px;">Rent ${rentPeriodYears}yr Then Buy — Wealth
-            <span class="info-icon">i<span class="tooltip">You rent for ${rentPeriodYears} year${rentPeriodYears>1?'s':''} while your down payment and closing costs grow in investments. When you buy, both the required down payment % and closing costs on the appreciated price are pulled from your investment — any leftover stays invested. This total combines your home equity plus that remaining portfolio.</span></span>
+          <div class="card-label" style="display:flex;align-items:center;gap:5px;">Rent ${rentPeriodYears}yr Then Buy — ${YEARS}yr Wealth
+            <span class="info-icon">i<span class="tooltip">Rent for ${rentPeriodYears} years while investing, then buy. The 30-year mortgage runs from year ${rentPeriodYears+1} to year ${rentPeriodYears+loanTerm} — fully paid off by end of the ${YEARS}-year window. Wealth = home equity + any leftover investment portfolio.</span></span>
           </div>
           <div class="card-value">${fmtK(finalRTBWealth)}</div>
-          <div class="card-sub">Home equity + leftover investment at yr 30</div>
+          <div class="card-sub">Home equity + leftover investment at yr ${YEARS}</div>
         </div>` : `
         <div class="card amber">
           <div class="card-label" style="display:flex;align-items:center;gap:5px;">Difference (Buy vs. Rent+Invest)
-            <span class="info-icon">i<span class="tooltip">The gap between buying and renting+investing after 30 years. ${winner==='buy'?'Buying comes out ahead by this amount — meaning homeownership built more total wealth in this scenario.':'Renting and investing comes out ahead by this amount — meaning you\'d have more money if you\'d rented and put the down payment in the market.'}</span></span>
+            <span class="info-icon">i<span class="tooltip">The gap between buying and renting+investing after ${YEARS} years. ${winner==='buy'?'Buying comes out ahead by this amount — meaning homeownership built more total wealth in this scenario.':'Renting and investing comes out ahead by this amount — meaning you\'d have more money if you\'d rented and put the down payment in the market.'}</span></span>
           </div>
           <div class="card-value">${fmtK(Math.abs(finalBuyWealth - finalRentWealth))}</div>
           <div class="card-sub">${winner==='buy'?'Buying wins by this amount':'Renting+Investing wins by this amount'}</div>
@@ -1244,8 +1247,8 @@ function calculate() {
 
           const buyCard = `
             <div class="tng-card ${cardClass(trueNetBuy)}">
-              <div class="tng-card-name">🏠 Buy Now <span class="info-icon">i<span class="tooltip">Wealth (${fmtK(finalBuyWealth)}) minus every dollar spent: down payment, closing costs, all mortgage payments, taxes, insurance, and maintenance over 30 years.</span></span></div>
-              <div class="tng-wealth">${fmtK(finalBuyWealth)} wealth at yr 30</div>
+              <div class="tng-card-name">🏠 Buy Now <span class="info-icon">i<span class="tooltip">Wealth (${fmtK(finalBuyWealth)}) minus every dollar spent over ${YEARS} years: down payment, closing costs, all mortgage payments, taxes, insurance, and maintenance.</span></span></div>
+              <div class="tng-wealth">${fmtK(finalBuyWealth)} wealth at yr ${YEARS}</div>
               <div class="tng-spent">−${fmtK(finalBuyCost)} total spent</div>
               <div class="tng-net ${trueNetBuy>=0?'pos':'neg'}">${trueNetBuy>=0?'+':''}${fmtK(trueNetBuy)}</div>
               <div class="tng-bar-wrap"><div class="tng-bar ${barClass(trueNetBuy)}" style="width:${barPct(finalBuyCost)}%"></div></div>
@@ -1254,8 +1257,8 @@ function calculate() {
 
           const rentCard = `
             <div class="tng-card ${rentPeriodYears===0&&nets.length===2?cardClass(trueNetRent):''}${rentPeriodYears>0?cardClass(trueNetRent):''}">
-              <div class="tng-card-name">📈 Rent + Invest <span class="info-icon">i<span class="tooltip">Portfolio (${fmtK(finalRentWealth)}) minus all rent paid over 30 years (${fmtK(finalRentCost)}). Rent leaves no asset behind — this is the true net result.</span></span></div>
-              <div class="tng-wealth">${fmtK(finalRentWealth)} wealth at yr 30</div>
+              <div class="tng-card-name">📈 Rent + Invest <span class="info-icon">i<span class="tooltip">Portfolio (${fmtK(finalRentWealth)}) minus all rent paid over ${YEARS} years (${fmtK(finalRentCost)}). Rent leaves no asset behind — this is the true net result.</span></span></div>
+              <div class="tng-wealth">${fmtK(finalRentWealth)} wealth at yr ${YEARS}</div>
               <div class="tng-spent">−${fmtK(finalRentCost)} rent paid</div>
               <div class="tng-net ${trueNetRent>=0?'pos':'neg'}">${trueNetRent>=0?'+':''}${fmtK(trueNetRent)}</div>
               <div class="tng-bar-wrap"><div class="tng-bar ${barClass(trueNetRent)}" style="width:${barPct(finalRentCost)}%"></div></div>
@@ -1264,17 +1267,17 @@ function calculate() {
 
           const thirdCard = rentPeriodYears > 0 ? `
             <div class="tng-card ${cardClass(trueNetRTB)}">
-              <div class="tng-card-name">📅 Rent ${rentPeriodYears}yr → Buy <span class="info-icon">i<span class="tooltip">Combined wealth (${fmtK(finalRTBWealth)}) minus all spending: rent during wait, then down payment, closing costs, mortgage, taxes, insurance, and maintenance after buying. Total spent: ${fmtK(finalRTBCost)}.</span></span></div>
-              <div class="tng-wealth">${fmtK(finalRTBWealth)} wealth at yr 30</div>
+              <div class="tng-card-name">📅 Rent ${rentPeriodYears}yr → Buy <span class="info-icon">i<span class="tooltip">Combined wealth (${fmtK(finalRTBWealth)}) minus all spending over ${YEARS} years: rent during wait, then down payment, closing costs, mortgage, taxes, insurance, and maintenance after buying. Total spent: ${fmtK(finalRTBCost)}.</span></span></div>
+              <div class="tng-wealth">${fmtK(finalRTBWealth)} wealth at yr ${YEARS}</div>
               <div class="tng-spent">−${fmtK(finalRTBCost)} total spent</div>
               <div class="tng-net ${trueNetRTB>=0?'pos':'neg'}">${trueNetRTB>=0?'+':''}${fmtK(trueNetRTB)}</div>
               <div class="tng-bar-wrap"><div class="tng-bar ${barClass(trueNetRTB)}" style="width:${barPct(finalRTBCost)}%"></div></div>
               <div class="tng-bar-label ${barLbl(trueNetRTB)}">${barLblText(trueNetRTB,finalRTBCost)}</div>
             </div>` : `
             <div class="tng-card blue" style="border-color:#bfdbfe;background:var(--blue-pale);">
-              <div class="tng-card-name">📅 Best Path Summary <span class="info-icon">i<span class="tooltip">When no rent-then-buy period is selected, this card shows which of the two active scenarios (Buy Now vs Rent+Invest) has the better true net gain, and by how much.</span></span></div>
+              <div class="tng-card-name">📅 Best Path Summary <span class="info-icon">i<span class="tooltip">When no rent-then-buy period is selected, this card shows which of the two active scenarios (Buy Now vs Rent+Invest) has the better true net gain over ${YEARS} years, and by how much.</span></span></div>
               <div class="tng-wealth" style="font-size:1rem;margin-bottom:6px;">${trueNetBuy>=trueNetRent?'🏠 Buy Now leads':'📈 Rent+Invest leads'}</div>
-              <div class="tng-spent">True net gain difference</div>
+              <div class="tng-spent">True net gain difference at yr ${YEARS}</div>
               <div class="tng-net" style="color:var(--blue-dark);">${trueNetBuy>=trueNetRent?'+':''}${fmtK(trueNetBuy-trueNetRent)}</div>
               <div style="font-size:0.75rem;color:var(--text-3);margin-top:4px;">Set rent slider &gt; 0 to add a 3rd scenario</div>
             </div>`;
@@ -1294,8 +1297,8 @@ function calculate() {
 
     <div class="chart-box">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <h3 style="margin-bottom:0;">Net Wealth Over 30 Years</h3>
-        <span class="info-icon">i<span class="tooltip">This chart tracks how much financial wealth each path builds year by year. For buying, that's your home equity (home value minus remaining loan). For renting, it's your investment portfolio. Higher = better.</span></span>
+        <h3 style="margin-bottom:0;">Net Wealth Over ${YEARS} Years</h3>
+        <span class="info-icon">i<span class="tooltip">This chart tracks how much financial wealth each path builds year by year over the full ${YEARS}-year window. For buying, that's home equity. For renting, it's the investment portfolio. Higher = better.</span></span>
       </div>
       <p>Comparing equity/investment value built year by year across all scenarios</p>
       <div class="chart-wrap"><canvas id="wealthChart"></canvas></div>
@@ -1303,8 +1306,8 @@ function calculate() {
 
     <div class="chart-box">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <h3 style="margin-bottom:0;">Cumulative Costs Over 30 Years</h3>
-        <span class="info-icon">i<span class="tooltip">This shows the total money you've spent (not gained) over time. For buying: down payment + mortgage payments + taxes + insurance + maintenance. For renting: just monthly rent. Note that buying costs more upfront but you're building equity, unlike rent which is gone forever.</span></span>
+        <h3 style="margin-bottom:0;">Cumulative Costs Over ${YEARS} Years</h3>
+        <span class="info-icon">i<span class="tooltip">Total money spent over ${YEARS} years. For buying: down payment + mortgage payments + taxes + insurance + maintenance. For renting: just monthly rent.</span></span>
       </div>
       <p>Total money spent (rent, mortgage, taxes, maintenance, down payment)</p>
       <div class="chart-wrap"><canvas id="costChart"></canvas></div>
@@ -1313,7 +1316,7 @@ function calculate() {
     <div class="chart-box">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
         <h3 style="margin-bottom:0;">Annual Housing Cost Comparison</h3>
-        <span class="info-icon">i<span class="tooltip">What you actually pay each year in housing costs. Buying costs stay relatively flat (your mortgage is fixed) while rent keeps climbing every year due to your annual rent increase setting. Over time, buying often becomes the cheaper monthly option.</span></span>
+        <span class="info-icon">i<span class="tooltip">What you actually pay each year in housing costs over ${YEARS} years. Buying costs stay relatively flat (fixed mortgage) while rent keeps climbing. After the mortgage pays off, buying costs drop significantly.</span></span>
       </div>
       <p>Year-by-year cost of buying vs. renting — notice rent rises every year while mortgage stays fixed</p>
       <div class="chart-wrap"><canvas id="annualChart"></canvas></div>
@@ -1410,17 +1413,26 @@ function chartOpts(prefix, bar=false) {
 }
 
 function generateTable(buyData, rentData, rtbData, rentPeriod) {
+  const totalYrs = buyData.length;
   const showRTB = rentPeriod > 0;
-  const rows = [1,2,3,4,5,7,10,12,15,20,25,30].map(yr => {
+
+  // Build milestone years dynamically — always include key points + final year
+  const base = [1,2,3,5,7,10,15,20,25,30];
+  const extras = rentPeriod > 0 ? [rentPeriod, rentPeriod+5, rentPeriod+10, rentPeriod+15, rentPeriod+20, rentPeriod+25, rentPeriod+30] : [];
+  const milestones = [...new Set([...base, ...extras, totalYrs])].filter(y => y <= totalYrs).sort((a,b)=>a-b);
+
+  const rows = milestones.map(yr => {
     const b = buyData[yr-1];
     const r = rentData[yr-1];
     const rtb = rtbData[yr-1];
+    if (!b || !r) return '';
     const bw = b.wealth;
     const rw = r.wealth;
     const rtbw = rtb ? rtb.wealth : null;
     const buyWins = bw >= rw;
-    return `<tr>
-      <td>Yr ${yr}</td>
+    const isFinal = yr === totalYrs;
+    return `<tr ${isFinal?'style="font-weight:700;background:var(--blue-pale);"':''}>
+      <td>Yr ${yr}${isFinal?' ★':''}</td>
       <td class="${buyWins?'win-buy':''}">🏠 ${fmtK(bw)}</td>
       <td class="${!buyWins?'win-rent':''}">📈 ${fmtK(rw)}</td>
       <td>${fmtK(Math.abs(bw-rw))} ${buyWins?'▲ Buy':'▼ Rent'}</td>
@@ -1492,22 +1504,22 @@ function openTab(which) {
     const totalInvested = k.dp + k.closingCosts;
     costHTML = `
       <div class="detail-section-title">Cost & Wealth Breakdown</div>
-      ${dr('Investment portfolio at year 30', fmtK(k.finalRentWealth), 'hi')}
+      ${dr('Investment portfolio at year '+k.YEARS, fmtK(k.finalRentWealth), 'hi')}
       ${dr('Initial amount invested', fmtK(totalInvested))}
       ${dr('(Down payment)', fmtK(k.dp))}
       ${dr('(Closing costs invested)', fmtK(k.closingCosts))}
       ${dr('Investment growth (gain)', fmtK(k.finalRentWealth - totalInvested), 'pos')}
-      ${dr('Total rent paid over 30 years', fmtK(k.finalRentCost))}
+      ${dr('Total rent paid over '+k.YEARS+' years', fmtK(k.finalRentCost))}
       ${dr('Starting monthly rent', fmtK(k.startRent)+'/mo')}
-      ${dr('Rent at year 30', fmtK(k.startRent * Math.pow(1+k.rentIncrease/100, 29))+'/mo')}
+      ${dr('Rent at year '+k.YEARS, fmtK(k.startRent * Math.pow(1+k.rentIncrease/100, k.YEARS-1))+'/mo')}
       ${drTotal('Total money spent (rent only)', fmtK(k.finalRentCost))}
       ${drTotal('True net gain', (k.trueNetRent>=0?'+':'')+fmtK(k.trueNetRent), k.trueNetRent>=0?'pos':'neg')}`;
     varsHTML = `
       <div class="detail-section-title">Key Thresholds & Variables</div>
       ${dr('Investment return needed to match Buy Now equity', k.returnToMatchBuy ? k.returnToMatchBuy+'%/yr' : 'Already beats it', k.returnToMatchBuy?'hi':'pos')}
       ${dr('Current return vs. needed return', k.returnToMatchBuy ? (k.investReturn > parseFloat(k.returnToMatchBuy) ? `${k.investReturn}% > ${k.returnToMatchBuy}% ✓` : `${k.investReturn}% < ${k.returnToMatchBuy}% ✗`) : '—', k.returnToMatchBuy&&k.investReturn>parseFloat(k.returnToMatchBuy)?'pos':'neg')}
-      ${dr('Portfolio ever surpasses Buy Now equity?', k.breakevenYear ? `Yes — Buy Now pulls ahead at yr ${k.breakevenYear}` : 'Rent+Invest stays ahead all 30 years', k.breakevenYear?'':'pos')}
-      ${dr('Rent+Invest vs. Buy Now at yr 30', (k.finalRentWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRentWealth-k.finalBuyWealth), k.finalRentWealth>=k.finalBuyWealth?'pos':'neg')}`;
+      ${dr('Portfolio ever surpasses Buy Now equity?', k.breakevenYear ? `Yes — Buy Now pulls ahead at yr ${k.breakevenYear}` : `Rent+Invest stays ahead all ${k.YEARS} years`, k.breakevenYear?'':'pos')}
+      ${dr('Rent+Invest vs. Buy Now at yr '+k.YEARS, (k.finalRentWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRentWealth-k.finalBuyWealth), k.finalRentWealth>=k.finalBuyWealth?'pos':'neg')}`;
   } else if (which === 'rtb') {
     title = `📅 Rent ${k.rentPeriodYears}yr Then Buy — Full Breakdown`;
     const appreciatedPrice = k.homePrice * Math.pow(1+k.appreciation/100, k.rentPeriodYears);
@@ -1516,15 +1528,15 @@ function openTab(which) {
     const newCC = appreciatedPrice * k.closingCostPct / 100;
     const growthAtPurchase = (k.dp+k.closingCosts)*Math.pow(1+k.investReturn/100,k.rentPeriodYears);
     const leftover = Math.max(growthAtPurchase - newDp - newCC, 0);
-    const leftoverFinal = leftover * Math.pow(1+k.investReturn/100, 30-k.rentPeriodYears);
+    const leftoverFinal = leftover * Math.pow(1+k.investReturn/100, k.YEARS-k.rentPeriodYears);
     const rtbRentPaid = k.rentThenBuyData.slice(0, k.rentPeriodYears).reduce((s,d)=>s+(d.cumulativeCost-(k.rentThenBuyData[k.rentThenBuyData.indexOf(d)-1]?.cumulativeCost||0)),0);
 
     costHTML = `
       <div class="detail-section-title">Cost & Wealth Breakdown</div>
-      ${dr('Combined wealth at year 30', fmtK(k.finalRTBWealth), 'hi')}
-      ${dr('Home equity at year 30', fmtK(k.finalRTBWealth - leftoverFinal), 'hi')}
-      ${dr('Leftover investment at year 30', fmtK(leftoverFinal), 'pos')}
-      ${dr('Rent paid during wait (${k.rentPeriodYears} yrs)', fmtK(k.rentThenBuyData[k.rentPeriodYears-1]?.cumulativeCost||0))}
+      ${dr('Combined wealth at year '+k.YEARS, fmtK(k.finalRTBWealth), 'hi')}
+      ${dr('Home equity at year '+k.YEARS, fmtK(k.finalRTBWealth - leftoverFinal), 'hi')}
+      ${dr('Leftover investment at year '+k.YEARS, fmtK(leftoverFinal), 'pos')}
+      ${dr('Rent paid during wait ('+k.rentPeriodYears+' yrs)', fmtK(k.rentThenBuyData[k.rentPeriodYears-1]?.cumulativeCost||0))}
       ${dr('Purchase price (after '+k.rentPeriodYears+'yr appreciation)', fmtK(appreciatedPrice))}
       ${dr('Down payment at purchase', fmtK(newDp))}
       ${dr('Closing costs at purchase', fmtK(newCC))}
@@ -1533,9 +1545,9 @@ function openTab(which) {
       ${drTotal('True net gain', (k.trueNetRTB>=0?'+':'')+fmtK(k.trueNetRTB), k.trueNetRTB>=0?'pos':'neg')}`;
     varsHTML = `
       <div class="detail-section-title">Key Thresholds & Variables</div>
-      ${dr('Break-even vs. Buy Now (after purchase)', k.rtbBreakevenYear ? `Year ${k.rtbBreakevenYear}` : 'Does not surpass Buy Now in 30yrs', k.rtbBreakevenYear?'pos':'')}
-      ${dr('Advantage over Buy Now at yr 30', (k.finalRTBWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalBuyWealth), k.finalRTBWealth>=k.finalBuyWealth?'pos':'neg')}
-      ${dr('Advantage over Rent+Invest at yr 30', (k.finalRTBWealth-k.finalRentWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalRentWealth), k.finalRTBWealth>=k.finalRentWealth?'pos':'neg')}
+      ${dr('Break-even vs. Buy Now (after purchase)', k.rtbBreakevenYear ? `Year ${k.rtbBreakevenYear}` : `Does not surpass Buy Now in ${k.YEARS} yrs`, k.rtbBreakevenYear?'pos':'')}
+      ${dr('Advantage over Buy Now at yr '+k.YEARS, (k.finalRTBWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalBuyWealth), k.finalRTBWealth>=k.finalBuyWealth?'pos':'neg')}
+      ${dr('Advantage over Rent+Invest at yr '+k.YEARS, (k.finalRTBWealth-k.finalRentWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalRentWealth), k.finalRTBWealth>=k.finalRentWealth?'pos':'neg')}
       ${dr('Optimal window note', k.rentPeriodYears<=5?'Short wait — investment growth is limited but home price delta is manageable':k.rentPeriodYears<=10?'Medium wait — strong investment growth but significantly higher purchase price':'Long wait — maximum investment growth but much higher home price & loan')}`;
   }
 
@@ -1559,9 +1571,9 @@ async function fetchInsight(which, k) {
   if (!el) return;
 
   const scenarios = {
-    buy: `Buy Now: $${Math.round(k.homePrice).toLocaleString()} home, 20% down ($${Math.round(k.dp).toLocaleString()}), ${k.closingCostPct}% closing costs ($${Math.round(k.closingCosts).toLocaleString()}), ${k.mortgageRate}% rate ${k.loanTerm}yr term, ${k.appreciation}% annual appreciation, ${k.taxInsPct}% tax+insurance, ${k.maintenancePct}% maintenance. Result: ${fmtK(k.finalBuyWealth)} equity, ${fmtK(k.finalBuyCost)} spent, ${(k.trueNetBuy>=0?'+':'')+fmtK(k.trueNetBuy)} true net gain. Break-even vs renting: ${k.breakevenYear?'Year '+k.breakevenYear:'never'}.`,
-    rent: `Rent+Invest: Start rent $${Math.round(k.startRent).toLocaleString()}/mo rising ${k.rentIncrease}%/yr. Invest $${Math.round(k.dp+k.closingCosts).toLocaleString()} (dp+closing) at ${k.investReturn}%/yr return. Result: ${fmtK(k.finalRentWealth)} portfolio, ${fmtK(k.finalRentCost)} rent paid, ${(k.trueNetRent>=0?'+':'')+fmtK(k.trueNetRent)} true net gain.`,
-    rtb: `Rent ${k.rentPeriodYears}yr then buy: rent $${Math.round(k.startRent).toLocaleString()}/mo (${k.rentIncrease}%/yr increase) while investing $${Math.round(k.dp+k.closingCosts).toLocaleString()} at ${k.investReturn}%/yr. Buy after ${k.rentPeriodYears} years at appreciated price. Result: ${fmtK(k.finalRTBWealth)} combined wealth, ${fmtK(k.finalRTBCost)} total spent, ${(k.trueNetRTB>=0?'+':'')+fmtK(k.trueNetRTB)} true net gain. Advantage vs buy now: ${(k.finalRTBWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalBuyWealth)}.`
+    buy: `Buy Now: $${Math.round(k.homePrice).toLocaleString()} home, 20% down ($${Math.round(k.dp).toLocaleString()}), ${k.closingCostPct}% closing costs, ${k.mortgageRate}% rate ${k.loanTerm}yr term, ${k.appreciation}% appreciation, ${k.taxInsPct}% tax+insurance, ${k.maintenancePct}% maintenance. Compared over ${k.YEARS} years. Result: ${fmtK(k.finalBuyWealth)} equity, ${fmtK(k.finalBuyCost)} spent, ${(k.trueNetBuy>=0?'+':'')+fmtK(k.trueNetBuy)} true net gain. Break-even vs renting: ${k.breakevenYear?'Year '+k.breakevenYear:'never'}.`,
+    rent: `Rent+Invest over ${k.YEARS} years: Start rent $${Math.round(k.startRent).toLocaleString()}/mo rising ${k.rentIncrease}%/yr. Invest $${Math.round(k.dp+k.closingCosts).toLocaleString()} at ${k.investReturn}%/yr. Result: ${fmtK(k.finalRentWealth)} portfolio, ${fmtK(k.finalRentCost)} rent paid, ${(k.trueNetRent>=0?'+':'')+fmtK(k.trueNetRent)} true net gain.`,
+    rtb: `Rent ${k.rentPeriodYears}yr then buy, compared over ${k.YEARS} years total: rent $${Math.round(k.startRent).toLocaleString()}/mo (${k.rentIncrease}%/yr) while investing $${Math.round(k.dp+k.closingCosts).toLocaleString()} at ${k.investReturn}%/yr. Buy at appreciated price after ${k.rentPeriodYears} years, 30yr mortgage fully paid by end of window. Result: ${fmtK(k.finalRTBWealth)} combined wealth, ${fmtK(k.finalRTBCost)} total spent, ${(k.trueNetRTB>=0?'+':'')+fmtK(k.trueNetRTB)} true net gain. Advantage vs buy now: ${(k.finalRTBWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalBuyWealth)}.`
   };
 
   const prompts = {
