@@ -195,12 +195,12 @@
   }
 
   .main-wrap {
-    max-width: 1280px;
+    max-width: 100%;
     margin: 0 auto;
-    padding: 32px 24px 0;
+    padding: 24px 24px 0;
     display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 28px;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
     align-items: start;
   }
 
@@ -210,9 +210,32 @@
     border: 1.5px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 28px 24px;
+    padding: 20px 18px;
     position: sticky;
-    top: 88px;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .inputs-panel::-webkit-scrollbar { width: 5px; }
+  .inputs-panel::-webkit-scrollbar-track { background: transparent; }
+  .inputs-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+  @media (max-width: 960px) {
+    .main-wrap { grid-template-columns: 1fr; padding: 16px 16px 0; }
+    .inputs-panel { position: static; max-height: none; }
+    header { padding: 14px 18px; flex-direction: column; gap: 6px; }
+    .summary-cards { grid-template-columns: 1fr 1fr; }
+    .tng-cards { grid-template-columns: 1fr; }
+  }
+
+  /* RESULTS PANEL */
+  .results-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
   }
   .section-title {
     font-family: 'Playfair Display', serif;
@@ -656,7 +679,103 @@
     display: block;
   }
 
-  @media (max-width: 900px) {
+  /* COLLAPSIBLE SECTIONS */
+  .collapsible {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 14px;
+    cursor: pointer;
+    background: var(--surface2);
+    user-select: none;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .collapsible-header:hover { background: var(--blue-pale); }
+  .collapsible-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .collapsible-chevron {
+    font-size: 0.75rem;
+    color: var(--text-3);
+    transition: transform 0.22s;
+    flex-shrink: 0;
+  }
+  .collapsible.open .collapsible-chevron { transform: rotate(180deg); }
+  .collapsible-body {
+    padding: 14px 14px 10px;
+    display: none;
+  }
+  .collapsible.open .collapsible-body { display: block; }
+  .collapsible-body .input-group:last-child { margin-bottom: 4px; }
+  .collapsible-body .section-gap { margin-top: 0; }
+
+  /* CHART COLLAPSIBLE — full width in results panel */
+  .chart-collapsible {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .chart-collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    cursor: pointer;
+    user-select: none;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .chart-collapsible-header:hover { background: var(--blue-pale); }
+  .chart-collapsible-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin: 0;
+  }
+  .chart-collapsible-header .ch-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-collapsible-header p {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin: 0;
+  }
+  .chart-collapsible-chevron {
+    font-size: 0.75rem;
+    color: var(--text-3);
+    transition: transform 0.22s;
+    flex-shrink: 0;
+  }
+  .chart-collapsible.open .chart-collapsible-chevron { transform: rotate(180deg); }
+  .chart-collapsible-body {
+    display: none;
+    padding: 0 22px 18px;
+  }
+  .chart-collapsible-body p {
+    font-size: 0.8rem;
+    color: var(--text-3);
+    margin-bottom: 14px;
+  }
+  .chart-collapsible.open .chart-collapsible-body { display: block; }
     .main-wrap { grid-template-columns: 1fr; }
     .inputs-panel { position: static; }
     header { padding: 18px 18px 14px; flex-direction: column; gap: 4px; }
@@ -689,220 +808,228 @@
   <!-- INPUTS -->
   <div class="inputs-panel">
 
-    <div class="section-title"><span class="icon">🏠</span> Home Purchase</div>
-    <button class="calc-btn" onclick="calculate()" style="margin-top:0;margin-bottom:18px;">⚡ Calculate Results</button>
+    <button class="calc-btn" onclick="calculate()" style="margin-top:0;margin-bottom:14px;">⚡ Calculate Results</button>
 
-    <div class="input-group">
-      <div class="label-row">
-        <label>Home Purchase Price</label>
-        <span class="info-icon">i<span class="tooltip">The total price you'd pay to buy the home. This is the full sale price before any down payment is subtracted.</span></span>
+    <!-- HOME PURCHASING -->
+    <div class="collapsible open" id="col-home">
+      <div class="collapsible-header" onclick="toggleCollapsible('col-home')">
+        <div class="collapsible-title"><span>🏠</span> Home Purchasing</div>
+        <span class="collapsible-chevron">▼</span>
       </div>
-      <div class="input-row">
-        <span class="input-prefix">$</span>
-        <input type="number" id="homePrice" value="250000" min="50000" step="1000"/>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Down Payment</label>
-        <span class="info-icon">i<span class="tooltip">The upfront cash you pay when buying a home. The rest is covered by your mortgage loan. A 20% down payment avoids extra monthly PMI (private mortgage insurance) fees.</span></span>
-      </div>
-      <div class="toggle-row">
-        <button class="toggle-btn active" id="dpPctBtn" onclick="setDpMode('pct')">Percent %</button>
-        <button class="toggle-btn" id="dpAmtBtn" onclick="setDpMode('amt')">Dollar $</button>
-      </div>
-      <div id="dpPctInput">
-        <div class="input-row">
-          <input type="number" id="downPct" value="20" min="0" max="100" step="0.5"/>
-          <span class="input-suffix">%</span>
-        </div>
-      </div>
-      <div id="dpAmtInput" style="display:none">
-        <div class="input-row">
-          <span class="input-prefix">$</span>
-          <input type="number" id="downAmt" value="70000" min="0" step="1000"/>
-        </div>
-      </div>
-      <div class="range-labels" id="dpCalcLabel" style="margin-top:5px; font-size:0.78rem; color:var(--blue);">Down payment: $50,000</div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Closing Costs (% of Home Price)</label>
-        <span class="info-icon">i<span class="tooltip">Closing costs are one-time fees you pay when finalizing the home purchase — things like lender fees, title insurance, inspections, and attorney costs. They typically run 2–5% of the home price. On a $350K home at 3%, that's $10,500 due at closing on top of your down payment.</span></span>
-      </div>
-      <div class="input-row">
-        <input type="number" id="closingCostPct" value="4" min="0" max="10" step="0.1"/>
-        <span class="input-suffix">%</span>
-      </div>
-      <div style="margin-top:5px; font-size:0.78rem; color:var(--blue);" id="closingCostLabel">Closing costs: $10,000</div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Mortgage Interest Rate</label>
-        <span class="info-icon">i<span class="tooltip">The annual interest rate your lender charges on your loan. Even a 0.5% difference can mean tens of thousands of dollars over 30 years. Check current rates at your bank or credit union.</span></span>
-      </div>
-      <div class="input-row">
-        <input type="number" id="mortgageRate" value="5.75" min="0" max="20" step="0.05"/>
-        <span class="input-suffix">%</span>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Loan Term</label>
-        <span class="info-icon">i<span class="tooltip">How long you have to pay off the mortgage. A 30-year loan has lower monthly payments but you pay more interest overall. A 15-year loan costs more per month but you pay it off faster and save a lot on interest.</span></span>
-      </div>
-      <div class="toggle-row">
-        <button class="toggle-btn active" id="term30btn" onclick="setTerm(30)">30 Year</button>
-        <button class="toggle-btn" id="term15btn" onclick="setTerm(15)">15 Year</button>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Home Appreciation / Year</label>
-        <span class="info-icon">i<span class="tooltip">How much your home's value is expected to grow each year, as a percentage. Historically, U.S. homes have appreciated around 3–4% per year on average, though it varies a lot by location.</span></span>
-      </div>
-      <div class="input-row">
-        <input type="number" id="appreciation" value="4" min="0" max="20" step="0.1"/>
-        <span class="input-suffix">%</span>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Annual Repairs &amp; Maintenance (% of Home Value)</label>
-        <span class="info-icon">i<span class="tooltip">A yearly budget for fixing and maintaining the home — think HVAC, roof, plumbing, appliances, etc. A common rule of thumb is 1% of the home's value per year. So a $350K home = ~$3,500/year.</span></span>
-      </div>
-      <div class="input-row">
-        <input type="number" id="maintenancePct" value="1" min="0" max="5" step="0.1"/>
-        <span class="input-suffix">%</span>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Property Tax + Insurance (% of Home Value)</label>
-        <span class="info-icon">i<span class="tooltip">Your combined yearly property tax and homeowner's insurance as a percentage of the home's value. In most U.S. areas this runs 1.5–2.5% combined. The dollar amount updates automatically based on your home price and rises each year with the Tax &amp; Insurance Increase % you set above.</span></span>
-      </div>
-      <div class="input-row">
-        <input type="number" id="taxInsPct" value="1.5" min="0" max="10" step="0.05"/>
-        <span class="input-suffix">%</span>
-      </div>
-      <div style="margin-top:5px; font-size:0.78rem; color:var(--blue);" id="taxInsLabel">≈ $3,750 / year at current home price</div>
-    </div>
-
-    <!-- RENT SECTION -->
-    <div class="section-gap">
-      <div class="section-title"><span class="icon">🏢</span> Renting</div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Starting Monthly Rent</label>
-        <span class="info-icon">i<span class="tooltip">What you'd pay each month to rent a home or apartment comparable to the one you're considering buying. Enter your current rent or look up average rents in your target neighborhood.</span></span>
-      </div>
-      <div class="input-row">
-        <span class="input-prefix">$</span>
-        <input type="number" id="startRent" value="1500" min="0" step="50"/>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <div class="label-row">
-        <label>Annual Rent Increase</label>
-        <span class="info-icon">i<span class="tooltip">How much your rent is expected to go up each year. Landlords typically raise rent 3–5% annually. Over 30 years this adds up significantly — rent that starts at $1,800/mo becomes $4,000+/mo at 3% growth.</span></span>
-      </div>
-      <div class="input-row">
-        <input type="number" id="rentIncrease" value="4" min="0" max="20" step="0.1"/>
-        <span class="input-suffix">%</span>
-      </div>
-    </div>
-
-    <!-- RENT THEN BUY -->
-    <div class="scenario-block">
-      <div class="section-title"><span class="icon">📅</span> Rent First, Then Buy</div>
-      <div class="input-group" style="margin-bottom:8px;">
-        <div class="label-row">
-          <label>Rent for How Many Years First?</label>
-          <span class="info-icon">i<span class="tooltip">Instead of buying right away, you can choose to rent for a few years and invest your down payment in the stock market. When you eventually buy, the calculator uses the appreciated home price and pulls the required down payment from your investment — any leftover stays invested.</span></span>
-        </div>
-        <div class="rent-slider-wrap">
-          <div class="rent-slider-val">
-            <div class="big-val" id="rentPeriodDisplay">5 <span>years</span></div>
-            <div class="buy-now-badge" id="buyNowBadge" style="display:none;">Buy Now</div>
+      <div class="collapsible-body">
+        <div class="input-group">
+          <div class="label-row">
+            <label>Home Purchase Price</label>
+            <span class="info-icon">i<span class="tooltip">The total price you'd pay to buy the home. This is the full sale price before any down payment is subtracted.</span></span>
           </div>
-          <input type="range" id="rentPeriodSlider" min="0" max="30" step="1" value="5" oninput="setRentPeriodSlider(this.value)"/>
-          <div class="range-labels"><span>Buy Now</span><span>15 yrs</span><span>30 yrs</span></div>
+          <div class="input-row">
+            <span class="input-prefix">$</span>
+            <input type="number" id="homePrice" value="250000" min="50000" step="1000"/>
+          </div>
         </div>
-        <div style="font-size:0.78rem; color:var(--text-3); margin-top:6px;" id="rentPeriodNote">Down payment + closing costs invested for 5 years. At purchase, both are pulled from your investment — anything leftover stays invested.</div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Down Payment</label>
+            <span class="info-icon">i<span class="tooltip">The upfront cash you pay when buying a home. The rest is covered by your mortgage loan. A 20% down payment avoids extra monthly PMI (private mortgage insurance) fees.</span></span>
+          </div>
+          <div class="toggle-row">
+            <button class="toggle-btn active" id="dpPctBtn" onclick="setDpMode('pct')">Percent %</button>
+            <button class="toggle-btn" id="dpAmtBtn" onclick="setDpMode('amt')">Dollar $</button>
+          </div>
+          <div id="dpPctInput">
+            <div class="input-row">
+              <input type="number" id="downPct" value="20" min="0" max="100" step="0.5"/>
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div id="dpAmtInput" style="display:none">
+            <div class="input-row">
+              <span class="input-prefix">$</span>
+              <input type="number" id="downAmt" value="70000" min="0" step="1000"/>
+            </div>
+          </div>
+          <div class="range-labels" id="dpCalcLabel" style="margin-top:5px; font-size:0.78rem; color:var(--blue);">Down payment: $50,000</div>
+        </div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Closing Costs (% of Home Price)</label>
+            <span class="info-icon">i<span class="tooltip">Closing costs are one-time fees you pay when finalizing the home purchase — things like lender fees, title insurance, inspections, and attorney costs. They typically run 2–5% of the home price.</span></span>
+          </div>
+          <div class="input-row">
+            <input type="number" id="closingCostPct" value="4" min="0" max="10" step="0.1"/>
+            <span class="input-suffix">%</span>
+          </div>
+          <div style="margin-top:5px; font-size:0.78rem; color:var(--blue);" id="closingCostLabel">Closing costs: $10,000</div>
+        </div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Mortgage Interest Rate</label>
+            <span class="info-icon">i<span class="tooltip">The annual interest rate your lender charges on your loan. Even a 0.5% difference can mean tens of thousands of dollars over 30 years.</span></span>
+          </div>
+          <div class="input-row">
+            <input type="number" id="mortgageRate" value="5.75" min="0" max="20" step="0.05"/>
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Loan Term</label>
+            <span class="info-icon">i<span class="tooltip">How long you have to pay off the mortgage. A 30-year loan has lower monthly payments but you pay more interest overall. A 15-year loan costs more per month but saves on interest.</span></span>
+          </div>
+          <div class="toggle-row">
+            <button class="toggle-btn active" id="term30btn" onclick="setTerm(30)">30 Year</button>
+            <button class="toggle-btn" id="term15btn" onclick="setTerm(15)">15 Year</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Home Appreciation / Year</label>
+            <span class="info-icon">i<span class="tooltip">How much your home's value is expected to grow each year. Historically, U.S. homes have appreciated around 3–4% per year on average.</span></span>
+          </div>
+          <div class="input-row">
+            <input type="number" id="appreciation" value="4" min="0" max="20" step="0.1"/>
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Annual Repairs &amp; Maintenance (% of Home Value)</label>
+            <span class="info-icon">i<span class="tooltip">A yearly budget for fixing and maintaining the home. A common rule of thumb is 1% of the home's value per year.</span></span>
+          </div>
+          <div class="input-row">
+            <input type="number" id="maintenancePct" value="1" min="0" max="5" step="0.1"/>
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Property Tax + Insurance (% of Home Value)</label>
+            <span class="info-icon">i<span class="tooltip">Your combined yearly property tax and homeowner's insurance as a percentage of the home's value. In most U.S. areas this runs 1.5–2.5% combined.</span></span>
+          </div>
+          <div class="input-row">
+            <input type="number" id="taxInsPct" value="1.5" min="0" max="10" step="0.05"/>
+            <span class="input-suffix">%</span>
+          </div>
+          <div style="margin-top:5px; font-size:0.78rem; color:var(--blue);" id="taxInsLabel">≈ $3,750 / year at current home price</div>
+        </div>
       </div>
     </div>
 
-    <!-- INVESTMENT -->
-    <div class="section-gap">
-      <div class="section-title"><span class="icon">📈</span> Investment Scenario</div>
+    <!-- RENTING -->
+    <div class="collapsible open" id="col-rent">
+      <div class="collapsible-header" onclick="toggleCollapsible('col-rent')">
+        <div class="collapsible-title"><span>🏢</span> Renting</div>
+        <span class="collapsible-chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <div class="input-group">
+          <div class="label-row">
+            <label>Starting Monthly Rent</label>
+            <span class="info-icon">i<span class="tooltip">What you'd pay each month to rent a home or apartment comparable to the one you're considering buying.</span></span>
+          </div>
+          <div class="input-row">
+            <span class="input-prefix">$</span>
+            <input type="number" id="startRent" value="1500" min="0" step="50"/>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="label-row">
+            <label>Annual Rent Increase</label>
+            <span class="info-icon">i<span class="tooltip">How much your rent is expected to go up each year. Landlords typically raise rent 3–5% annually.</span></span>
+          </div>
+          <div class="input-row">
+            <input type="number" id="rentIncrease" value="4" min="0" max="20" step="0.1"/>
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <div class="scenario-block" style="margin-top:10px;">
+          <div class="section-title" style="font-size:0.82rem;margin-bottom:10px;"><span class="icon">📅</span> Rent First, Then Buy</div>
+          <div class="input-group" style="margin-bottom:4px;">
+            <div class="label-row">
+              <label>Rent for How Many Years First?</label>
+              <span class="info-icon">i<span class="tooltip">Instead of buying right away, you can choose to rent for a few years and invest your down payment. When you eventually buy, the calculator uses the appreciated home price and pulls the required down payment from your investment — any leftover stays invested.</span></span>
+            </div>
+            <div class="rent-slider-wrap">
+              <div class="rent-slider-val">
+                <div class="big-val" id="rentPeriodDisplay">5 <span>years</span></div>
+                <div class="buy-now-badge" id="buyNowBadge" style="display:none;">Buy Now</div>
+              </div>
+              <input type="range" id="rentPeriodSlider" min="0" max="30" step="1" value="5" oninput="setRentPeriodSlider(this.value)"/>
+              <div class="range-labels"><span>Buy Now</span><span>15 yrs</span><span>30 yrs</span></div>
+            </div>
+            <div style="font-size:0.78rem; color:var(--text-3); margin-top:6px;" id="rentPeriodNote">Down payment + closing costs invested for 5 years. At purchase, both are pulled from your investment — anything leftover stays invested.</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="input-group">
-      <div class="label-row">
-        <label>Expected Annual Investment Return</label>
-        <span class="info-icon">i<span class="tooltip">If you rent instead of buy, you can invest the down payment money in something like an index fund or ETF. This is the yearly return you expect on that investment. The S&P 500 has historically averaged about 7% per year after inflation.</span></span>
+    <!-- INVESTMENT SCENARIO -->
+    <div class="collapsible open" id="col-invest">
+      <div class="collapsible-header" onclick="toggleCollapsible('col-invest')">
+        <div class="collapsible-title"><span>📈</span> Investment Scenario</div>
+        <span class="collapsible-chevron">▼</span>
       </div>
-      <div class="input-row">
-        <input type="number" id="investReturn" value="9" min="0" max="30" step="0.1"/>
-        <span class="input-suffix">%</span>
+      <div class="collapsible-body">
+        <div class="input-group">
+          <div class="label-row">
+            <label>Expected Annual Investment Return</label>
+            <span class="info-icon">i<span class="tooltip">If you rent instead of buy, you can invest the down payment money in something like an index fund or ETF. The S&P 500 has historically averaged about 7% per year after inflation.</span></span>
+          </div>
+          <div class="input-row">
+            <input type="number" id="investReturn" value="9" min="0" max="30" step="0.1"/>
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+        <p style="font-size:0.76rem; color:var(--text-3); margin-top:-4px; margin-bottom:4px;">If renting, this is the assumed return on the invested down payment amount.</p>
       </div>
     </div>
-    <p style="font-size:0.76rem; color:var(--text-3); margin-top:-8px; margin-bottom:14px;">If renting, this is the assumed return on the invested down payment amount.</p>
 
-    <!-- ADVANCED TOGGLES -->
-    <div class="adv-toggles-box section-gap">
-      <div class="section-title"><span class="icon">⚙️</span> Advanced Options</div>
-
-      <div class="adv-toggle-row">
-        <div class="adv-toggle-info">
-          <div class="adv-toggle-label">Invest Down Payment Difference
-            <span class="info-icon">i<span class="tooltip">If your down payment is less than 20%, the buyer putting less down also invests the difference between their down payment and a full 20% down payment. This keeps the Buy Now scenario honest — that extra cash doesn't disappear, it earns returns too.</span></span>
-          </div>
-          <div class="adv-toggle-sub" id="dpDiffSub">Off — difference not invested</div>
-        </div>
-        <label class="pill-toggle">
-          <input type="checkbox" id="toggleDpDiff"/>
-          <div class="pill-track"></div>
-          <div class="pill-thumb"></div>
-        </label>
+    <!-- ADVANCED OPTIONS -->
+    <div class="collapsible" id="col-adv">
+      <div class="collapsible-header" onclick="toggleCollapsible('col-adv')">
+        <div class="collapsible-title"><span>⚙️</span> Advanced Options</div>
+        <span class="collapsible-chevron">▼</span>
       </div>
-
-      <div class="adv-toggle-row">
-        <div class="adv-toggle-info">
-          <div class="adv-toggle-label">15% Capital Gains Tax on Investments
-            <span class="info-icon">i<span class="tooltip">When toggled on, any investment gains (final portfolio value minus original amount invested) are taxed at a flat 15% long-term capital gains rate. This reduces the true net wealth for all scenarios involving investments. Home equity gains are not taxed.</span></span>
+      <div class="collapsible-body">
+        <div class="adv-toggle-row">
+          <div class="adv-toggle-info">
+            <div class="adv-toggle-label">Invest Down Payment Difference
+              <span class="info-icon">i<span class="tooltip">If your down payment is less than 20%, the buyer putting less down also invests the difference between their down payment and a full 20% down payment. This keeps the Buy Now scenario honest — that extra cash doesn't disappear, it earns returns too.</span></span>
+            </div>
+            <div class="adv-toggle-sub" id="dpDiffSub">Off — difference not invested</div>
           </div>
-          <div class="adv-toggle-sub">Off — investment gains not taxed</div>
+          <label class="pill-toggle">
+            <input type="checkbox" id="toggleDpDiff"/>
+            <div class="pill-track"></div>
+            <div class="pill-thumb"></div>
+          </label>
         </div>
-        <label class="pill-toggle">
-          <input type="checkbox" id="toggleCapGains"/>
-          <div class="pill-track"></div>
-          <div class="pill-thumb"></div>
-        </label>
-      </div>
-
-      <div class="adv-toggle-row">
-        <div class="adv-toggle-info">
-          <div class="adv-toggle-label">6% Home Selling Fee
-            <span class="info-icon">i<span class="tooltip">When toggled on, a 6% selling fee (e.g. realtor commissions, closing costs) is deducted from the home's final value in all scenarios where a home is purchased. This simulates full liquidation and gives a more realistic net equity figure.</span></span>
+        <div class="adv-toggle-row">
+          <div class="adv-toggle-info">
+            <div class="adv-toggle-label">15% Capital Gains Tax on Investments
+              <span class="info-icon">i<span class="tooltip">When toggled on, any investment gains (final portfolio value minus original amount invested) are taxed at a flat 15% long-term capital gains rate. Home equity gains are not taxed.</span></span>
+            </div>
+            <div class="adv-toggle-sub">Off — investment gains not taxed</div>
           </div>
-          <div class="adv-toggle-sub">Off — selling fees not included</div>
+          <label class="pill-toggle">
+            <input type="checkbox" id="toggleCapGains"/>
+            <div class="pill-track"></div>
+            <div class="pill-thumb"></div>
+          </label>
         </div>
-        <label class="pill-toggle">
-          <input type="checkbox" id="toggleSellFee"/>
-          <div class="pill-track"></div>
-          <div class="pill-thumb"></div>
-        </label>
+        <div class="adv-toggle-row">
+          <div class="adv-toggle-info">
+            <div class="adv-toggle-label">6% Home Selling Fee
+              <span class="info-icon">i<span class="tooltip">When toggled on, a 6% selling fee is deducted from the home's final value in all scenarios where a home is purchased. This simulates full liquidation including realtor fees.</span></span>
+            </div>
+            <div class="adv-toggle-sub">Off — selling fees not included</div>
+          </div>
+          <label class="pill-toggle">
+            <input type="checkbox" id="toggleSellFee"/>
+            <div class="pill-track"></div>
+            <div class="pill-thumb"></div>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -921,6 +1048,22 @@
 </div>
 
 <script>
+function toggleCollapsible(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleChartCollapsible(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.toggle('open');
+    // Trigger chart resize after expand so Chart.js redraws correctly
+    if (el.classList.contains('open')) {
+      setTimeout(() => { Object.values(charts).forEach(c => c && c.resize()); }, 50);
+    }
+  }
+}
+
 function handleAdvToggle() {
   const dpDiffOn   = document.getElementById('toggleDpDiff').checked;
   const capGainsOn = document.getElementById('toggleCapGains').checked;
@@ -1129,9 +1272,12 @@ function calculate() {
   }
 
   // ---- SCENARIO B: RENT FULL YEARS ----
+  // Rent scenarios always invest the full 20% equivalent + closing costs
+  // (they don't put a smaller down payment — they invest what the buyer would have needed)
+  const rentInvestBase = dp20 + closingCosts;
   let rentFullData = [];
-  let investedValue = dp + closingCosts;
-  const rentInvestedPrincipal = dp + closingCosts;
+  let investedValue = rentInvestBase;
+  const rentInvestedPrincipal = rentInvestBase;
   let rentMonthly = startRent;
   let rentTotalCost = 0;
   for (let yr = 1; yr <= YEARS; yr++) {
@@ -1151,9 +1297,10 @@ function calculate() {
   }
 
   // ---- SCENARIO C: RENT X YEARS THEN BUY ----
+  // Same as Scenario B — always invest the 20% equivalent + closing costs
   let rentThenBuyData = [];
-  let rtbInvested = dp + closingCosts;
-  let rtbInvestedPrincipal = dp + closingCosts;
+  let rtbInvested = rentInvestBase;
+  let rtbInvestedPrincipal = rentInvestBase;
   let rtbRentMonthly = startRent;
   let rtbTotalCost = 0;
   let rtbRemainingBalance = 0;
@@ -1237,16 +1384,6 @@ function calculate() {
     arr.push({ year: yr, cumulativeCost: cumCost, wealth: wealth, investedValue: invested, remainingLoan: loan, homeValue: homeVal });
   }
 
-  // ---- BREAKEVEN ----
-  let breakevenYear = null;
-  for (let i = 0; i < YEARS; i++) {
-    const buyWealth = buyNowData[i].wealth;
-    const rentWealth = rentFullData[i].wealth;
-    if (buyWealth >= rentWealth && breakevenYear === null) {
-      breakevenYear = i + 1;
-    }
-  }
-
   // ---- FINAL VALUES (declared early so threshold loops can reference them) ----
   const finalBuyWealth = buyNowData[YEARS-1].wealth;
   const finalRentWealth = rentFullData[YEARS-1].wealth;
@@ -1271,6 +1408,19 @@ function calculate() {
       }
     }
   }
+
+  // Find ALL crossovers between Buy Now and Rent+Invest wealth — use the LAST one
+  let allBreakevenYears = [];
+  for (let i = 1; i < YEARS; i++) {
+    const prevBuyAhead = buyNowData[i-1].wealth >= rentFullData[i-1].wealth;
+    const currBuyAhead = buyNowData[i].wealth   >= rentFullData[i].wealth;
+    if (prevBuyAhead !== currBuyAhead) allBreakevenYears.push(i + 1);
+  }
+  // breakevenYear = the LAST crossover (final time the lead changes)
+  const breakevenYear = allBreakevenYears.length > 0
+    ? allBreakevenYears[allBreakevenYears.length - 1]
+    : null;
+  const breakevenCrossoverCount = allBreakevenYears.length;
 
   // Compute total mortgage paid, total tax+ins paid, total maintenance for Buy Now
   let totalMortgagePaid = 0, totalTaxInsPaid = 0, totalMaintenancePaid = 0;
@@ -1332,20 +1482,20 @@ function calculate() {
   // Investment return needed to match buy now
   let returnToMatchBuy = null;
   for (let testRet = 0; testRet <= 30; testRet += 0.25) {
-    let inv = dp + closingCosts;
+    let inv = rentInvestBase;
     for (let yr = 1; yr <= YEARS; yr++) inv *= (1 + testRet/100);
     if (inv >= finalBuyWealth) { returnToMatchBuy = testRet.toFixed(1); break; }
   }
 
   // Store globally for tab access
   window._ks = {
-    homePrice, dp, dp20, dpDiff, closingCosts, mortgageRate, loanTerm, appreciation, taxInsPct, maintenancePct,
+    homePrice, dp, dp20, dpDiff, closingCosts, rentInvestBase, mortgageRate, loanTerm, appreciation, taxInsPct, maintenancePct,
     startRent, rentIncrease, investReturn, closingCostPct, rentPeriodYears,
     applyDpDiff, applyCapGains, applySellFee, CAP_GAINS_RATE, SELL_FEE_RATE,
     finalBuyWealth, finalRentWealth, finalRTBWealth,
     finalBuyCost, finalRentCost, finalRTBCost,
     trueNetBuy, trueNetRent, trueNetRTB,
-    breakevenYear, rtbBreakevenYear,
+    breakevenYear, rtbBreakevenYear, breakevenCrossoverCount,
     totalMortgagePaid, totalTaxInsPaid, totalMaintenancePaid,
     maxRateStillWins, minApprStillWins, returnToMatchBuy,
     buyNowData, rentFullData, rentThenBuyData, YEARS
@@ -1369,11 +1519,13 @@ function calculate() {
     <div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
         ${breakevenYear
-          ? `<div class="breakeven-badge" style="margin-bottom:0;">✅ Break-even at Year ${breakevenYear} — Buying pulls ahead</div>`
+          ? `<div class="breakeven-badge" style="margin-bottom:0;">✅ ${breakevenCrossoverCount > 1 ? `${breakevenCrossoverCount} crossovers — last at Year ${breakevenYear}` : `Break-even at Year ${breakevenYear} — Buying pulls ahead`}</div>`
           : `<div class="breakeven-badge no-breakeven" style="margin-bottom:0;">⚠️ Buying never catches up to renting + investing over ${YEARS} years</div>`
         }
         <span class="info-icon" style="flex-shrink:0;">i<span class="tooltip" style="width:250px;">${breakevenYear
-          ? `Year ${breakevenYear} is when your home equity finally surpasses what you'd have if you'd rented and invested the down payment instead. Before this point, renting + investing is ahead.`
+          ? breakevenCrossoverCount > 1
+            ? `The two scenarios cross over ${breakevenCrossoverCount} times. The final crossover — where the lead permanently changes — is at Year ${breakevenYear}. See the True Net Gain chart for all crossover points.`
+            : `Year ${breakevenYear} is when buying's net wealth finally surpasses renting + investing. Before this point, renting + investing is ahead.`
           : `Based on these numbers, renting and investing the down payment builds more wealth over ${YEARS} years than buying. Try adjusting appreciation, rent increase, or investment return to see how it changes.`
         }</span></span>
       </div>
@@ -1393,7 +1545,7 @@ function calculate() {
             <span class="info-icon">i<span class="tooltip">If you rent instead of buying, you invest both your down payment AND what would've been closing costs in the market. This is how much that combined investment would be worth after ${YEARS} years of renting and investing the full time.</span></span>
           </div>
           <div class="card-value">${fmtK(finalRentWealth)}</div>
-          <div class="card-sub">Down payment + closing costs invested at ${investReturn}%/yr</div>
+          <div class="card-sub">${fmtK(rentInvestBase)} invested (20% equiv. + closing) at ${investReturn}%/yr</div>
         </div>
         ${rentPeriodYears > 0 ? `
         <div class="card blue">
@@ -1482,39 +1634,68 @@ function calculate() {
       <div id="detail-panel-wrap"></div>
     </div>
 
-    <div class="chart-box">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <h3 style="margin-bottom:0;">Net Wealth Over ${YEARS} Years</h3>
-        <span class="info-icon">i<span class="tooltip">This chart tracks how much financial wealth each path builds year by year over the full ${YEARS}-year window. For buying, that's home equity. For renting, it's the investment portfolio. Higher = better.</span></span>
+    <div class="chart-collapsible open" id="cc-wealth">
+      <div class="chart-collapsible-header" onclick="toggleChartCollapsible('cc-wealth')">
+        <div>
+          <h3>Net Wealth Over ${YEARS} Years</h3>
+          <p>Equity vs. investment portfolio year by year</p>
+        </div>
+        <div class="ch-right">
+          <span class="info-icon">i<span class="tooltip">Tracks how much financial wealth each path builds year by year. For buying, that's home equity. For renting, it's the investment portfolio. Higher = better.</span></span>
+          <span class="chart-collapsible-chevron">▼</span>
+        </div>
       </div>
-      <p>Comparing equity/investment value built year by year across all scenarios</p>
-      <div class="chart-wrap"><canvas id="wealthChart"></canvas></div>
+      <div class="chart-collapsible-body">
+        <div class="chart-wrap"><canvas id="wealthChart"></canvas></div>
+      </div>
     </div>
 
-    <div class="chart-box">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <h3 style="margin-bottom:0;">Cumulative Costs Over ${YEARS} Years</h3>
-        <span class="info-icon">i<span class="tooltip">Total money spent over ${YEARS} years. For buying: down payment + mortgage payments + taxes + insurance + maintenance. For renting: just monthly rent.</span></span>
+    <div class="chart-collapsible open" id="cc-cost">
+      <div class="chart-collapsible-header" onclick="toggleChartCollapsible('cc-cost')">
+        <div>
+          <h3>True Net Gain Over ${YEARS} Years</h3>
+          <p>Wealth minus all expenses — what you actually came out ahead by</p>
+        </div>
+        <div class="ch-right">
+          <span class="info-icon">i<span class="tooltip">True Net Gain = wealth at that year minus every dollar spent up to that point. A crossover point is where one scenario overtakes another. The last crossover is always highlighted — that's the final time the lead changes hands.</span></span>
+          <span class="chart-collapsible-chevron">▼</span>
+        </div>
       </div>
-      <p>Total money spent (rent, mortgage, taxes, maintenance, down payment)</p>
-      <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+      <div class="chart-collapsible-body">
+        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+      </div>
     </div>
 
-    <div class="chart-box">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <h3 style="margin-bottom:0;">Annual Housing Cost Comparison</h3>
-        <span class="info-icon">i<span class="tooltip">What you actually pay each year in housing costs over ${YEARS} years. Buying costs stay relatively flat (fixed mortgage) while rent keeps climbing. After the mortgage pays off, buying costs drop significantly.</span></span>
+    <div class="chart-collapsible open" id="cc-annual">
+      <div class="chart-collapsible-header" onclick="toggleChartCollapsible('cc-annual')">
+        <div>
+          <h3>Annual Housing Cost Comparison</h3>
+          <p>Year-by-year cost of buying vs. renting</p>
+        </div>
+        <div class="ch-right">
+          <span class="info-icon">i<span class="tooltip">What you actually pay each year in housing costs. Buying costs stay flat (fixed mortgage) while rent keeps climbing. After the mortgage pays off, buying costs drop significantly.</span></span>
+          <span class="chart-collapsible-chevron">▼</span>
+        </div>
       </div>
-      <p>Year-by-year cost of buying vs. renting — notice rent rises every year while mortgage stays fixed</p>
-      <div class="chart-wrap"><canvas id="annualChart"></canvas></div>
+      <div class="chart-collapsible-body">
+        <div class="chart-wrap"><canvas id="annualChart"></canvas></div>
+      </div>
     </div>
 
-    <div class="table-box">
-      <div style="display:flex;align-items:center;gap:8px;padding:18px 22px 12px;border-bottom:1.5px solid var(--border);">
-        <h3 style="padding:0;border-bottom:none;font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--blue-dark);">Year-by-Year Net Worth Comparison</h3>
-        <span class="info-icon">i<span class="tooltip">A snapshot at key years showing who's "winning" financially — the buyer or the renter+investor. Green = buying is ahead. Blue = renting+investing is ahead. The difference column shows how large the gap is at that moment in time.</span></span>
+    <div class="chart-collapsible open" id="cc-table">
+      <div class="chart-collapsible-header" onclick="toggleChartCollapsible('cc-table')">
+        <div>
+          <h3>Year-by-Year Net Worth Comparison</h3>
+          <p>Key milestone snapshots across all scenarios</p>
+        </div>
+        <div class="ch-right">
+          <span class="info-icon">i<span class="tooltip">A snapshot at key years showing who's winning financially. Green = buying is ahead. Blue = renting+investing is ahead.</span></span>
+          <span class="chart-collapsible-chevron">▼</span>
+        </div>
       </div>
-      ${generateTable(buyNowData, rentFullData, rentThenBuyData, rentPeriodYears)}
+      <div class="chart-collapsible-body" style="padding:0;">
+        ${generateTable(buyNowData, rentFullData, rentThenBuyData, rentPeriodYears)}
+      </div>
     </div>
   `;
 
@@ -1533,14 +1714,27 @@ function calculate() {
     options: chartOpts('$')
   });
 
-  // Cost Chart
-  let rentMonthlyTemp = startRent;
-  let cumRentCosts = [];
-  let total = 0;
-  for (let yr = 1; yr <= YEARS; yr++) {
-    total += rentMonthlyTemp * 12;
-    cumRentCosts.push(total);
-    rentMonthlyTemp *= (1 + rentIncrease/100);
+  // True Net Gain Chart (replaces cumulative cost)
+  // TNG per year = wealth at that year - cumulative cost up to that year
+  const tngBuy  = buyNowData.map(d => d.wealth - d.cumulativeCost);
+  const tngRent = rentFullData.map(d => d.wealth - d.cumulativeRent);
+  const tngRTB  = rentThenBuyData.map(d => d.wealth - d.cumulativeCost);
+
+  // Find ALL crossover points between Buy and Rent, take the last one
+  const crossovers = [];
+  for (let i = 1; i < YEARS; i++) {
+    const prevBuyAhead = tngBuy[i-1] >= tngRent[i-1];
+    const currBuyAhead = tngBuy[i]   >= tngRent[i];
+    if (prevBuyAhead !== currBuyAhead) crossovers.push(i + 1); // yr is 1-indexed
+  }
+  const lastCrossover = crossovers.length > 0 ? crossovers[crossovers.length - 1] : null;
+
+  // Build point radius arrays — highlight only the last crossover
+  const pointRadiusBuy  = Array(YEARS).fill(0);
+  const pointRadiusRent = Array(YEARS).fill(0);
+  if (lastCrossover) {
+    pointRadiusBuy[lastCrossover - 1]  = 7;
+    pointRadiusRent[lastCrossover - 1] = 7;
   }
 
   charts.cost = new Chart(document.getElementById('costChart'), {
@@ -1548,13 +1742,55 @@ function calculate() {
     data: {
       labels,
       datasets: [
-        { label: 'Buy Now (Cumulative)', data: buyNowData.map(d=>d.cumulativeCost), borderColor:'#059669', borderWidth:2.5, pointRadius:0, fill:false, tension:0.3 },
-        { label: 'Rent Only (Cumulative)', data: cumRentCosts, borderColor:'#2563eb', borderWidth:2.5, pointRadius:0, fill:false, tension:0.3 },
-        ...(rentPeriodYears > 0 ? [{ label: `Rent ${rentPeriodYears}yr Then Buy`, data: rentThenBuyData.map(d=>d.cumulativeCost), borderColor:'#d97706', borderWidth:2, pointRadius:0, fill:false, borderDash:[5,3], tension:0.3 }] : [])
+        { label: 'Buy Now (True Net)', data: tngBuy, borderColor:'#059669', backgroundColor:'rgba(5,150,105,0.08)', borderWidth:2.5, pointRadius: pointRadiusBuy, pointBackgroundColor:'#059669', pointBorderColor:'#fff', pointBorderWidth:2, fill:true, tension:0.3 },
+        { label: 'Rent + Invest (True Net)', data: tngRent, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,0.07)', borderWidth:2.5, pointRadius: pointRadiusRent, pointBackgroundColor:'#2563eb', pointBorderColor:'#fff', pointBorderWidth:2, fill:true, tension:0.3 },
+        ...(rentPeriodYears > 0 ? [{ label: `Rent ${rentPeriodYears}yr→Buy (True Net)`, data: tngRTB, borderColor:'#d97706', backgroundColor:'rgba(217,119,6,0.06)', borderWidth:2, pointRadius:0, fill:false, borderDash:[5,3], tension:0.3 }] : [])
       ]
     },
-    options: chartOpts('$')
+    options: {
+      ...chartOpts('$'),
+      plugins: {
+        ...chartOpts('$').plugins,
+        annotation: undefined,
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: $${Math.round(ctx.parsed.y).toLocaleString()}`,
+            afterBody: (items) => {
+              if (lastCrossover && items[0]?.dataIndex === lastCrossover - 1) {
+                return [``, `⬤ Last crossover point — lead changes here`];
+              }
+              return [];
+            }
+          }
+        },
+        legend: chartOpts('$').plugins.legend
+      }
+    }
   });
+
+  // Draw crossover label directly on the canvas after render
+  if (lastCrossover) {
+    const tngChart = charts.cost;
+    const origDraw = tngChart.draw.bind(tngChart);
+    tngChart.draw = function() {
+      origDraw();
+      const ctx2 = tngChart.ctx;
+      const xScale = tngChart.scales.x;
+      const yScale = tngChart.scales.y;
+      const xPos = xScale.getPixelForValue(lastCrossover - 1);
+      const yVal = (tngBuy[lastCrossover-1] + tngRent[lastCrossover-1]) / 2;
+      const yPos = yScale.getPixelForValue(yVal);
+      ctx2.save();
+      ctx2.fillStyle = '#1a202c';
+      ctx2.font = 'bold 11px DM Sans, sans-serif';
+      ctx2.textAlign = 'left';
+      const label = crossovers.length > 1
+        ? `← Last crossover (Yr ${lastCrossover}, ${crossovers.length} total)`
+        : `← Crossover (Yr ${lastCrossover})`;
+      ctx2.fillText(label, xPos + 8, yPos - 4);
+      ctx2.restore();
+    };
+  }
 
   // Annual cost chart
   let annualRentArr = [];
@@ -1693,14 +1929,15 @@ function openTab(which) {
       ${dr('Effective annual housing cost (yr 1)', fmtK(k.buyNowData[0].annualCost))}`;
   } else if (which === 'rent') {
     title = '📈 Rent + Invest — Full Breakdown';
-    const totalInvested = k.dp + k.closingCosts;
+    const totalInvested = k.rentInvestBase;
     const rawPortfolio = k.rentFullData[k.YEARS-1]?.investedValue || k.finalRentWealth;
     costHTML = `
       <div class="detail-section-title">Cost & Wealth Breakdown</div>
       ${dr('Investment portfolio at year '+k.YEARS+(k.applyCapGains?' (after 15% cap gains tax)':''), fmtK(k.finalRentWealth), 'hi')}
-      ${dr('Initial amount invested', fmtK(totalInvested))}
-      ${dr('(Down payment)', fmtK(k.dp))}
-      ${dr('(Closing costs invested)', fmtK(k.closingCosts))}
+      ${dr('Initial amount invested (20% equiv. + closing costs)', fmtK(totalInvested))}
+      ${dr('(20% of home price)', fmtK(k.dp20))}
+      ${dr('(Closing costs)', fmtK(k.closingCosts))}
+      ${k.dp < k.dp20 ? dr('(Actual dp was '+Math.round((k.dp/k.homePrice)*100)+'% — rent scenario always uses 20%)', '') : ''}
       ${dr('Investment growth (gross gain)', fmtK(rawPortfolio - totalInvested), 'pos')}
       ${k.applyCapGains ? dr('15% cap gains tax on gains', '−'+fmtK((rawPortfolio - totalInvested)*k.CAP_GAINS_RATE)) : ''}
       ${dr('Total rent paid over '+k.YEARS+' years', fmtK(k.finalRentCost))}
@@ -1813,6 +2050,11 @@ function bindTooltips() {
 }
 document.addEventListener('click', () => {
   document.querySelectorAll('.info-icon.tip-open').forEach(i => i.classList.remove('tip-open'));
+});
+
+// Shift key triggers recalculate
+document.addEventListener('keydown', e => {
+  if (e.key === 'Shift' && !e.repeat) calculate();
 });
 
 // Auto-calc on load
