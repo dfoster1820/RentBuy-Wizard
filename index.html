@@ -57,7 +57,68 @@
   body.dark .card.amber { background:#2d1f07; border-color:#fbbf24; }
   body.dark .card.blue { background:#1e2a45; border-color:#3b82f6; }
 
-  /* DARK MODE TOGGLE */
+  /* ADVANCED TOGGLES BOX */
+  .adv-toggles-box {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 14px 10px;
+    margin-bottom: 14px;
+  }
+  .adv-toggles-box .section-title {
+    font-size: 0.88rem;
+    margin-bottom: 12px;
+  }
+  .adv-toggle-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .adv-toggle-row:last-child { margin-bottom: 2px; }
+  .adv-toggle-info { flex: 1; }
+  .adv-toggle-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2px;
+  }
+  .adv-toggle-sub {
+    font-size: 0.72rem;
+    color: var(--text-3);
+    line-height: 1.4;
+  }
+  .pill-toggle {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+    cursor: pointer;
+    margin-top: 1px;
+  }
+  .pill-toggle input { opacity: 0; width: 0; height: 0; }
+  .pill-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 999px;
+    transition: background 0.22s;
+  }
+  .pill-toggle input:checked + .pill-track { background: var(--blue); }
+  .pill-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.22s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .pill-toggle input:checked ~ .pill-thumb { transform: translateX(18px); }
   .dark-toggle {
     display: flex;
     align-items: center;
@@ -798,6 +859,53 @@
     </div>
     <p style="font-size:0.76rem; color:var(--text-3); margin-top:-8px; margin-bottom:14px;">If renting, this is the assumed return on the invested down payment amount.</p>
 
+    <!-- ADVANCED TOGGLES -->
+    <div class="adv-toggles-box section-gap">
+      <div class="section-title"><span class="icon">⚙️</span> Advanced Options</div>
+
+      <div class="adv-toggle-row">
+        <div class="adv-toggle-info">
+          <div class="adv-toggle-label">Invest Down Payment Difference
+            <span class="info-icon">i<span class="tooltip">If your down payment is less than 20%, the buyer putting less down also invests the difference between their down payment and a full 20% down payment. This keeps the Buy Now scenario honest — that extra cash doesn't disappear, it earns returns too.</span></span>
+          </div>
+          <div class="adv-toggle-sub" id="dpDiffSub">Off — difference not invested</div>
+        </div>
+        <label class="pill-toggle">
+          <input type="checkbox" id="toggleDpDiff"/>
+          <div class="pill-track"></div>
+          <div class="pill-thumb"></div>
+        </label>
+      </div>
+
+      <div class="adv-toggle-row">
+        <div class="adv-toggle-info">
+          <div class="adv-toggle-label">15% Capital Gains Tax on Investments
+            <span class="info-icon">i<span class="tooltip">When toggled on, any investment gains (final portfolio value minus original amount invested) are taxed at a flat 15% long-term capital gains rate. This reduces the true net wealth for all scenarios involving investments. Home equity gains are not taxed.</span></span>
+          </div>
+          <div class="adv-toggle-sub">Off — investment gains not taxed</div>
+        </div>
+        <label class="pill-toggle">
+          <input type="checkbox" id="toggleCapGains"/>
+          <div class="pill-track"></div>
+          <div class="pill-thumb"></div>
+        </label>
+      </div>
+
+      <div class="adv-toggle-row">
+        <div class="adv-toggle-info">
+          <div class="adv-toggle-label">6% Home Selling Fee
+            <span class="info-icon">i<span class="tooltip">When toggled on, a 6% selling fee (e.g. realtor commissions, closing costs) is deducted from the home's final value in all scenarios where a home is purchased. This simulates full liquidation and gives a more realistic net equity figure.</span></span>
+          </div>
+          <div class="adv-toggle-sub">Off — selling fees not included</div>
+        </div>
+        <label class="pill-toggle">
+          <input type="checkbox" id="toggleSellFee"/>
+          <div class="pill-track"></div>
+          <div class="pill-thumb"></div>
+        </label>
+      </div>
+    </div>
+
     <button class="calc-btn" onclick="calculate()">⚡ Calculate Results</button>
   </div>
 
@@ -813,10 +921,40 @@
 </div>
 
 <script>
+function handleAdvToggle() {
+  const dpDiffOn   = document.getElementById('toggleDpDiff').checked;
+  const capGainsOn = document.getElementById('toggleCapGains').checked;
+  const sellFeeOn  = document.getElementById('toggleSellFee').checked;
+
+  const hp = parseFloat(document.getElementById('homePrice').value)||0;
+  const dpVal = dpMode === 'pct'
+    ? hp * (parseFloat(document.getElementById('downPct').value)||0) / 100
+    : (parseFloat(document.getElementById('downAmt').value)||0);
+  const diff = Math.max(hp * 0.20 - dpVal, 0);
+
+  const sub = document.getElementById('dpDiffSub');
+  if (sub) sub.textContent = dpDiffOn
+    ? (diff > 0 ? `On — ${fmt(diff)} difference invested at ${document.getElementById('investReturn').value}%/yr` : 'On — down payment is already ≥ 20%')
+    : 'Off — difference not invested';
+
+  // Update cap gains sub-label
+  const cgSubs = document.querySelectorAll('.adv-toggle-sub');
+  if (cgSubs[1]) cgSubs[1].textContent = capGainsOn ? 'On — 15% tax applied to investment gains' : 'Off — investment gains not taxed';
+  if (cgSubs[2]) cgSubs[2].textContent = sellFeeOn  ? 'On — 6% deducted from home equity at sale' : 'Off — selling fees not included';
+
+  // Auto-recalculate if results are already showing
+  if (window._ks) calculate();
+}
+
+document.getElementById('toggleDpDiff').addEventListener('change', handleAdvToggle);
+document.getElementById('toggleCapGains').addEventListener('change', handleAdvToggle);
+document.getElementById('toggleDpDiff').addEventListener('change', handleAdvToggle);
+document.getElementById('toggleCapGains').addEventListener('change', handleAdvToggle);
+document.getElementById('toggleSellFee').addEventListener('change', handleAdvToggle);
+
 function toggleDark(on) {
   document.body.classList.toggle('dark', on);
   document.getElementById('darkLabel').textContent = on ? '☀️ Light' : '☀️ Light';
-  // Redraw charts to pick up new colors if results exist
   if (Object.keys(charts).length > 0) calculate();
 }
 
@@ -919,9 +1057,19 @@ function calculate() {
   const closingCostPct = parseFloat(document.getElementById('closingCostPct').value)||0;
   const closingCosts = homePrice * closingCostPct / 100;
 
+  // Advanced toggles
+  const applyDpDiff  = document.getElementById('toggleDpDiff').checked;
+  const applyCapGains = document.getElementById('toggleCapGains').checked;
+  const applySellFee  = document.getElementById('toggleSellFee').checked;
+  const CAP_GAINS_RATE = 0.15;
+  const SELL_FEE_RATE  = 0.06;
+
   const dp = dpMode === 'pct'
     ? homePrice * (parseFloat(document.getElementById('downPct').value)||0) / 100
     : parseFloat(document.getElementById('downAmt').value)||0;
+
+  const dp20 = homePrice * 0.20;
+  const dpDiff = Math.max(dp20 - dp, 0); // amount buyer would invest on the side if dp < 20%
 
   const YEARS = 30 + rentPeriodYears;
 
@@ -933,6 +1081,8 @@ function calculate() {
   let buyRemainingBalance = loanA;
   let buyTotalCost = dp + closingCosts;
   let buyHomeValue = homePrice;
+  let buySideInvested = (applyDpDiff && dpDiff > 0) ? dpDiff : 0; // side investment of dp difference
+  const buySideInvestedPrincipal = buySideInvested;
   const r = mortgageRate / 100 / 12;
 
   for (let yr = 1; yr <= YEARS; yr++) {
@@ -947,47 +1097,63 @@ function calculate() {
         annualPrincipal += principal;
       }
     }
+    // Grow side investment
+    if (buySideInvested > 0) buySideInvested *= (1 + investReturn / 100);
+
     const annualTaxIns = buyHomeValue * taxInsPct / 100;
     const maintenance = buyHomeValue * maintenancePct / 100;
     const totalCostThisYear = annualMortgage + annualTaxIns + maintenance;
     buyTotalCost += totalCostThisYear;
     buyHomeValue *= (1 + appreciation/100);
-    const equity = buyHomeValue - Math.max(buyRemainingBalance, 0);
-    const wealth = buyHomeValue - Math.max(buyRemainingBalance, 0);
+
+    // Apply sell fee to home equity if toggled
+    const rawEquity = buyHomeValue - Math.max(buyRemainingBalance, 0);
+    const homeEquityAfterFee = applySellFee ? rawEquity * (1 - SELL_FEE_RATE) : rawEquity;
+
+    // Apply cap gains tax to side investment gains
+    const sideGain = Math.max(buySideInvested - buySideInvestedPrincipal, 0);
+    const sideAfterTax = buySideInvested - (applyCapGains ? sideGain * CAP_GAINS_RATE : 0);
+
+    const wealth = homeEquityAfterFee + sideAfterTax;
 
     buyNowData.push({
       year: yr,
       homeValue: buyHomeValue,
-      equity: equity,
+      equity: homeEquityAfterFee,
       cumulativeCost: buyTotalCost,
       remainingLoan: Math.max(buyRemainingBalance, 0),
       wealth: wealth,
       annualCost: totalCostThisYear,
+      sideInvested: sideAfterTax,
     });
   }
 
-  // ---- SCENARIO B: RENT FULL 30 YEARS ----
+  // ---- SCENARIO B: RENT FULL YEARS ----
   let rentFullData = [];
-  let investedValue = dp + closingCosts; // invest both dp and closing costs
+  let investedValue = dp + closingCosts;
+  const rentInvestedPrincipal = dp + closingCosts;
   let rentMonthly = startRent;
   let rentTotalCost = 0;
   for (let yr = 1; yr <= YEARS; yr++) {
     const annualRent = rentMonthly * 12;
     rentTotalCost += annualRent;
     investedValue *= (1 + investReturn / 100);
+    const gain = Math.max(investedValue - rentInvestedPrincipal, 0);
+    const wealthAfterTax = investedValue - (applyCapGains ? gain * CAP_GAINS_RATE : 0);
     rentFullData.push({
       year: yr,
       annualRent: annualRent,
       cumulativeRent: rentTotalCost,
-      investedValue: investedValue,
-      wealth: investedValue, // renter's wealth is just their investment
+      investedValue: wealthAfterTax,
+      wealth: wealthAfterTax,
     });
     rentMonthly *= (1 + rentIncrease / 100);
   }
 
   // ---- SCENARIO C: RENT X YEARS THEN BUY ----
   let rentThenBuyData = [];
-  let rtbInvested = dp + closingCosts; // invest both dp and closing costs while renting
+  let rtbInvested = dp + closingCosts;
+  let rtbInvestedPrincipal = dp + closingCosts;
   let rtbRentMonthly = startRent;
   let rtbTotalCost = 0;
   let rtbRemainingBalance = 0;
@@ -1002,7 +1168,9 @@ function calculate() {
       rtbTotalCost += annualRent;
       rtbInvested *= (1 + investReturn / 100);
       rtbRentMonthly *= (1 + rentIncrease / 100);
-      rtbThenBuyData_entry(rentThenBuyData, yr, rtbTotalCost, rtbInvested, rtbInvested, 0, 0);
+      const rtbRentGain = Math.max(rtbInvested - rtbInvestedPrincipal, 0);
+      const rtbRentAfterTax = rtbInvested - (applyCapGains ? rtbRentGain * CAP_GAINS_RATE : 0);
+      rtbThenBuyData_entry(rentThenBuyData, yr, rtbTotalCost, rtbRentAfterTax, rtbRentAfterTax, 0, 0);
     } else {
       // Buy at start of this year if just transitioning
       if (yr === rentPeriodYears + 1 || (rentPeriodYears === 0 && yr === 1)) {
@@ -1027,6 +1195,7 @@ function calculate() {
         rtbMortgageMonthly = monthlyPayment(newLoan, mortgageRate, loanTerm);
         rtbBoughtYear = yr;
         rtbInvested = leftoverInvested;
+        rtbInvestedPrincipal = Math.max(rtbInvestedPrincipal - totalPullout, 0); // reduce principal by what was pulled
         rtbTotalCost += totalPullout;
       }
 
@@ -1049,10 +1218,18 @@ function calculate() {
       const maintenance = rtbHomeValue * maintenancePct / 100;
       rtbTotalCost += annualMortgage + rtbAnnualTaxIns + maintenance;
       rtbHomeValue *= (1 + appreciation/100);
-      const equity = rtbHomeValue - Math.max(rtbRemainingBalance, 0);
-      const totalRTBWealth = equity + rtbInvested;
 
-      rtbThenBuyData_entry(rentThenBuyData, yr, rtbTotalCost, totalRTBWealth, rtbInvested, rtbRemainingBalance, rtbHomeValue);
+      // Apply sell fee to home equity
+      const rawRTBEquity = rtbHomeValue - Math.max(rtbRemainingBalance, 0);
+      const rtbHomeEquity = applySellFee ? rawRTBEquity * (1 - SELL_FEE_RATE) : rawRTBEquity;
+
+      // Apply cap gains tax to leftover investment
+      const rtbInvGain = Math.max(rtbInvested - rtbInvestedPrincipal, 0);
+      const rtbInvAfterTax = rtbInvested - (applyCapGains ? rtbInvGain * CAP_GAINS_RATE : 0);
+
+      const totalRTBWealth = rtbHomeEquity + rtbInvAfterTax;
+
+      rtbThenBuyData_entry(rentThenBuyData, yr, rtbTotalCost, totalRTBWealth, rtbInvAfterTax, rtbRemainingBalance, rtbHomeValue);
     }
   }
 
@@ -1162,8 +1339,9 @@ function calculate() {
 
   // Store globally for tab access
   window._ks = {
-    homePrice, dp, closingCosts, mortgageRate, loanTerm, appreciation, taxInsPct, maintenancePct,
+    homePrice, dp, dp20, dpDiff, closingCosts, mortgageRate, loanTerm, appreciation, taxInsPct, maintenancePct,
     startRent, rentIncrease, investReturn, closingCostPct, rentPeriodYears,
+    applyDpDiff, applyCapGains, applySellFee, CAP_GAINS_RATE, SELL_FEE_RATE,
     finalBuyWealth, finalRentWealth, finalRTBWealth,
     finalBuyCost, finalRentCost, finalRTBCost,
     trueNetBuy, trueNetRent, trueNetRTB,
@@ -1172,6 +1350,15 @@ function calculate() {
     maxRateStillWins, minApprStillWins, returnToMatchBuy,
     buyNowData, rentFullData, rentThenBuyData, YEARS
   };
+
+  // Update dp diff label
+  const subEl = document.getElementById('dpDiffSub');
+  if (subEl) {
+    const on = applyDpDiff;
+    subEl.textContent = on
+      ? (dpDiff > 0 ? `On — ${fmt(dpDiff)} difference invested at ${investReturn}%` : 'On — down payment is already ≥ 20%')
+      : 'Off — difference not invested';
+  }
 
   // ---- RENDER ----
   destroyCharts();
@@ -1480,35 +1667,42 @@ function openTab(which) {
 
   if (which === 'buy') {
     title = '🏠 Buy Now — Full Breakdown';
+    const lastBuy = k.buyNowData[k.YEARS-1];
     costHTML = `
       <div class="detail-section-title">Cost & Wealth Breakdown</div>
-      ${dr('Home value at year 30', fmtK(k.finalBuyWealth + Math.max(k.buyNowData[k.YEARS-1].remainingLoan,0)), 'hi')}
-      ${dr('Remaining loan at year 30', fmtK(k.buyNowData[k.YEARS-1].remainingLoan))}
-      ${dr('Net equity at year 30', fmtK(k.finalBuyWealth), 'hi')}
+      ${dr('Home value at year '+k.YEARS, fmtK(lastBuy.homeValue), 'hi')}
+      ${k.applySellFee ? dr('Selling fee (6% of home value)', '−'+fmtK(lastBuy.homeValue * k.SELL_FEE_RATE)) : ''}
+      ${dr('Remaining loan at year '+k.YEARS, fmtK(lastBuy.remainingLoan))}
+      ${dr('Net equity at year '+k.YEARS+(k.applySellFee?' (after sell fee)':''), fmtK(lastBuy.equity), 'hi')}
+      ${k.applyDpDiff && k.dpDiff > 0 ? dr('Side investment ('+fmtK(k.dpDiff)+' dp diff, after tax)', fmtK(lastBuy.sideInvested||0), 'pos') : ''}
       ${dr('Down payment (upfront)', fmtK(k.dp))}
       ${dr('Closing costs (upfront)', fmtK(k.closingCosts))}
       ${dr('Total mortgage payments', fmtK(k.totalMortgagePaid))}
       ${dr('Total property tax + insurance', fmtK(k.totalTaxInsPaid))}
       ${dr('Total repairs & maintenance', fmtK(k.totalMaintenancePaid))}
       ${drTotal('Total money spent', fmtK(k.finalBuyCost))}
-      ${drTotal('True net gain', (k.trueNetBuy>=0?'+':'')+fmtK(k.trueNetBuy), k.trueNetBuy>=0?'pos':'neg')}`;
+      ${drTotal('True net gain', (k.trueNetBuy>=0?'+':'')+fmtK(k.trueNetBuy), k.trueNetBuy>=0?'pos':'neg')}
+      ${k.applyCapGains ? dr('⚠ 15% cap gains on side investment', 'Applied') : ''}
+      ${k.applySellFee ? dr('⚠ 6% home selling fee', 'Applied') : ''}`;
     varsHTML = `
       <div class="detail-section-title">Key Thresholds & Variables</div>
-      ${dr('Break-even vs. Rent+Invest', k.breakevenYear ? `Year ${k.breakevenYear}` : 'Never in 30yrs', k.breakevenYear?'pos':'neg')}
+      ${dr('Break-even vs. Rent+Invest', k.breakevenYear ? `Year ${k.breakevenYear}` : `Never in ${k.YEARS}yrs`, k.breakevenYear?'pos':'neg')}
       ${dr('Max mortgage rate where buying still wins', k.maxRateStillWins ? (k.maxRateStillWins==='>'+'20' ? '>20% — buying always wins' : k.maxRateStillWins+'%') : 'Buying already losing', k.maxRateStillWins?'hi':'neg')}
       ${dr('Min appreciation for buying to win', k.minApprStillWins !== null ? k.minApprStillWins+'%/yr' : 'Not achievable in range', k.minApprStillWins!==null?'hi':'neg')}
-      ${dr('Monthly mortgage payment', fmtK(monthlyPayment(k.homePrice-k.dp, k.mortgageRate, k.loanTerm)/1)+'/mo')}
+      ${dr('Monthly mortgage payment', fmtK(monthlyPayment(k.homePrice-k.dp, k.mortgageRate, k.loanTerm))+'/mo')}
       ${dr('Effective annual housing cost (yr 1)', fmtK(k.buyNowData[0].annualCost))}`;
   } else if (which === 'rent') {
     title = '📈 Rent + Invest — Full Breakdown';
     const totalInvested = k.dp + k.closingCosts;
+    const rawPortfolio = k.rentFullData[k.YEARS-1]?.investedValue || k.finalRentWealth;
     costHTML = `
       <div class="detail-section-title">Cost & Wealth Breakdown</div>
-      ${dr('Investment portfolio at year '+k.YEARS, fmtK(k.finalRentWealth), 'hi')}
+      ${dr('Investment portfolio at year '+k.YEARS+(k.applyCapGains?' (after 15% cap gains tax)':''), fmtK(k.finalRentWealth), 'hi')}
       ${dr('Initial amount invested', fmtK(totalInvested))}
       ${dr('(Down payment)', fmtK(k.dp))}
       ${dr('(Closing costs invested)', fmtK(k.closingCosts))}
-      ${dr('Investment growth (gain)', fmtK(k.finalRentWealth - totalInvested), 'pos')}
+      ${dr('Investment growth (gross gain)', fmtK(rawPortfolio - totalInvested), 'pos')}
+      ${k.applyCapGains ? dr('15% cap gains tax on gains', '−'+fmtK((rawPortfolio - totalInvested)*k.CAP_GAINS_RATE)) : ''}
       ${dr('Total rent paid over '+k.YEARS+' years', fmtK(k.finalRentCost))}
       ${dr('Starting monthly rent', fmtK(k.startRent)+'/mo')}
       ${dr('Rent at year '+k.YEARS, fmtK(k.startRent * Math.pow(1+k.rentIncrease/100, k.YEARS-1))+'/mo')}
@@ -1534,13 +1728,15 @@ function openTab(which) {
     costHTML = `
       <div class="detail-section-title">Cost & Wealth Breakdown</div>
       ${dr('Combined wealth at year '+k.YEARS, fmtK(k.finalRTBWealth), 'hi')}
-      ${dr('Home equity at year '+k.YEARS, fmtK(k.finalRTBWealth - leftoverFinal), 'hi')}
-      ${dr('Leftover investment at year '+k.YEARS, fmtK(leftoverFinal), 'pos')}
-      ${dr('Rent paid during wait ('+k.rentPeriodYears+' yrs)', fmtK(k.rentThenBuyData[k.rentPeriodYears-1]?.cumulativeCost||0))}
+      ${dr('Home equity at year '+k.YEARS+(k.applySellFee?' (after 6% sell fee)':''), fmtK(k.finalRTBWealth - (k.rentThenBuyData[k.YEARS-1]?.investedValue||0)), 'hi')}
+      ${dr('Leftover investment at year '+k.YEARS+(k.applyCapGains?' (after 15% cap gains)':''), fmtK(k.rentThenBuyData[k.YEARS-1]?.investedValue||0), 'pos')}
+      ${dr('Rent paid during wait ('+k.rentPeriodYears+' yrs)', fmtK(k.rentThenBuyData[k.rentPeriodYears>0?k.rentPeriodYears-1:0]?.cumulativeCost||0))}
       ${dr('Purchase price (after '+k.rentPeriodYears+'yr appreciation)', fmtK(appreciatedPrice))}
       ${dr('Down payment at purchase', fmtK(newDp))}
       ${dr('Closing costs at purchase', fmtK(newCC))}
       ${dr('Investment growth during wait', fmtK(growthAtPurchase - (k.dp+k.closingCosts)), 'pos')}
+      ${k.applyCapGains ? dr('15% cap gains tax on investment gains', 'Applied') : ''}
+      ${k.applySellFee ? dr('6% home selling fee', 'Applied') : ''}
       ${drTotal('Total money spent', fmtK(k.finalRTBCost))}
       ${drTotal('True net gain', (k.trueNetRTB>=0?'+':'')+fmtK(k.trueNetRTB), k.trueNetRTB>=0?'pos':'neg')}`;
     varsHTML = `
@@ -1570,10 +1766,16 @@ async function fetchInsight(which, k) {
   const el = document.getElementById('ai-insight-text');
   if (!el) return;
 
+  const toggleNote = [
+    k.applyDpDiff && k.dpDiff > 0 ? `The ${fmtK(k.dpDiff)} difference between the actual down payment and 20% is invested on the side at ${k.investReturn}%/yr for Buy Now.` : '',
+    k.applyCapGains ? '15% long-term capital gains tax is applied to all investment gains.' : '',
+    k.applySellFee ? '6% home selling fee is deducted from home equity at end of window.' : ''
+  ].filter(Boolean).join(' ');
+
   const scenarios = {
-    buy: `Buy Now: $${Math.round(k.homePrice).toLocaleString()} home, 20% down ($${Math.round(k.dp).toLocaleString()}), ${k.closingCostPct}% closing costs, ${k.mortgageRate}% rate ${k.loanTerm}yr term, ${k.appreciation}% appreciation, ${k.taxInsPct}% tax+insurance, ${k.maintenancePct}% maintenance. Compared over ${k.YEARS} years. Result: ${fmtK(k.finalBuyWealth)} equity, ${fmtK(k.finalBuyCost)} spent, ${(k.trueNetBuy>=0?'+':'')+fmtK(k.trueNetBuy)} true net gain. Break-even vs renting: ${k.breakevenYear?'Year '+k.breakevenYear:'never'}.`,
-    rent: `Rent+Invest over ${k.YEARS} years: Start rent $${Math.round(k.startRent).toLocaleString()}/mo rising ${k.rentIncrease}%/yr. Invest $${Math.round(k.dp+k.closingCosts).toLocaleString()} at ${k.investReturn}%/yr. Result: ${fmtK(k.finalRentWealth)} portfolio, ${fmtK(k.finalRentCost)} rent paid, ${(k.trueNetRent>=0?'+':'')+fmtK(k.trueNetRent)} true net gain.`,
-    rtb: `Rent ${k.rentPeriodYears}yr then buy, compared over ${k.YEARS} years total: rent $${Math.round(k.startRent).toLocaleString()}/mo (${k.rentIncrease}%/yr) while investing $${Math.round(k.dp+k.closingCosts).toLocaleString()} at ${k.investReturn}%/yr. Buy at appreciated price after ${k.rentPeriodYears} years, 30yr mortgage fully paid by end of window. Result: ${fmtK(k.finalRTBWealth)} combined wealth, ${fmtK(k.finalRTBCost)} total spent, ${(k.trueNetRTB>=0?'+':'')+fmtK(k.trueNetRTB)} true net gain. Advantage vs buy now: ${(k.finalRTBWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalBuyWealth)}.`
+    buy: `Buy Now: $${Math.round(k.homePrice).toLocaleString()} home, ${Math.round((k.dp/k.homePrice)*100)}% down ($${Math.round(k.dp).toLocaleString()}), ${k.closingCostPct}% closing costs, ${k.mortgageRate}% rate ${k.loanTerm}yr term, ${k.appreciation}% appreciation, ${k.taxInsPct}% tax+insurance, ${k.maintenancePct}% maintenance. Compared over ${k.YEARS} years. ${toggleNote} Result: ${fmtK(k.finalBuyWealth)} equity, ${fmtK(k.finalBuyCost)} spent, ${(k.trueNetBuy>=0?'+':'')+fmtK(k.trueNetBuy)} true net gain. Break-even vs renting: ${k.breakevenYear?'Year '+k.breakevenYear:'never'}.`,
+    rent: `Rent+Invest over ${k.YEARS} years: Start rent $${Math.round(k.startRent).toLocaleString()}/mo rising ${k.rentIncrease}%/yr. Invest $${Math.round(k.dp+k.closingCosts).toLocaleString()} at ${k.investReturn}%/yr. ${toggleNote} Result: ${fmtK(k.finalRentWealth)} portfolio, ${fmtK(k.finalRentCost)} rent paid, ${(k.trueNetRent>=0?'+':'')+fmtK(k.trueNetRent)} true net gain.`,
+    rtb: `Rent ${k.rentPeriodYears}yr then buy, over ${k.YEARS} years total. Invest $${Math.round(k.dp+k.closingCosts).toLocaleString()} at ${k.investReturn}%/yr, buy at appreciated price after ${k.rentPeriodYears} years. ${toggleNote} Result: ${fmtK(k.finalRTBWealth)} combined wealth, ${fmtK(k.finalRTBCost)} total spent, ${(k.trueNetRTB>=0?'+':'')+fmtK(k.trueNetRTB)} true net gain. Advantage vs buy now: ${(k.finalRTBWealth-k.finalBuyWealth>=0?'+':'')+fmtK(k.finalRTBWealth-k.finalBuyWealth)}.`
   };
 
   const prompts = {
