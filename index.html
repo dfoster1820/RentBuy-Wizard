@@ -164,8 +164,9 @@ input[type="range"]{width:100%;accent-color:var(--blue);cursor:pointer;height:4p
 /* Info icon */
 .info{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--text-3);font-size:9px;font-weight:800;cursor:pointer;flex-shrink:0;position:relative;transition:all 0.15s;font-style:normal;line-height:1;user-select:none;}
 .info:hover{background:var(--blue);border-color:var(--blue);color:#fff;}
-.info .tip{display:none;position:absolute;left:20px;top:50%;transform:translateY(-50%);background:#111827;color:#f9fafb;font-family:var(--font);font-size:11px;font-weight:400;line-height:1.5;padding:8px 12px;border-radius:8px;width:220px;z-index:999;box-shadow:var(--shadow-lg);pointer-events:none;text-transform:none;letter-spacing:0;}
-.info .tip::before{content:'';position:absolute;left:-6px;top:50%;transform:translateY(-50%);border-width:5px 6px 5px 0;border-style:solid;border-color:transparent #111827 transparent transparent;}
+.info .tip{display:none;position:fixed;background:#111827;color:#f9fafb;font-family:var(--font);font-size:11px;font-weight:400;line-height:1.5;padding:8px 12px;border-radius:8px;width:220px;z-index:9999;box-shadow:var(--shadow-lg);pointer-events:none;text-transform:none;letter-spacing:0;}
+.info .tip::before{content:'';position:absolute;top:50%;transform:translateY(-50%);border-width:5px 6px 5px 0;border-style:solid;border-color:transparent #111827 transparent transparent;left:-6px;}
+.info .tip.tip-left::before{border-width:5px 0 5px 6px;border-color:transparent transparent transparent #111827;left:auto;right:-6px;}
 .info:hover .tip,.info.open .tip{display:block;}
 
 /* ── MAIN CONTENT ────────────────────────── */
@@ -274,6 +275,68 @@ tr:hover td{background:var(--surface2);}
 /* ── PENDING INDICATOR ───────────────────── */
 .pending-badge{display:none;align-items:center;gap:6px;background:var(--amber-pale);border:1px solid #fde68a;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--amber);margin-left:auto;}
 .pending-badge.visible{display:flex;}
+
+/* ── RETIREMENT ANALYSIS ─────────────────── */
+.retire-section{margin-top:18px;}
+.retire-section-label{font-size:11px;font-weight:700;color:var(--text-2);display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:8px 12px;background:linear-gradient(135deg,#fef3c7,#ecfdf5);border:1px solid #fde68a;border-radius:var(--radius-sm);}
+.retire-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.retire-card{background:var(--surface);border:1.5px solid #fde68a;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.retire-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#059669);}
+.retire-card-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--amber);margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.retire-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.retire-row:last-child{border-bottom:none;padding-bottom:0;}
+.retire-lbl{color:var(--text-3);font-weight:500;}
+.retire-val{font-family:var(--mono);font-weight:700;font-size:11px;color:var(--text);}
+.retire-val.pos{color:var(--green);}
+.retire-val.neg{color:var(--red);}
+.retire-val.hi{color:var(--amber);}
+.retire-final{font-family:var(--mono);font-size:20px;font-weight:800;margin:8px 0 4px;color:var(--text);}
+.retire-final.pos{color:var(--green);}
+.retire-final.neg{color:var(--red);}
+.retire-sublabel{font-size:10px;color:var(--text-3);margin-bottom:6px;}
+.retire-note{background:var(--amber-pale);border:1px solid #fde68a;border-radius:var(--radius-xs);padding:8px 10px;font-size:10px;color:var(--amber);line-height:1.5;margin-bottom:10px;}
+body.dark .retire-section-label{background:linear-gradient(135deg,#271d00,#0d2a1e);border-color:#d29922;}
+body.dark .retire-card{border-color:#d29922;}
+body.dark .retire-note{border-color:#d29922;}
+
+/* ── COMBINED TRUE NET GAIN CARDS ─────────── */
+.combined-tng-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.combined-tng-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2563eb,#059669);}
+.ctng-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:10px;display:flex;align-items:center;gap:4px;}
+.ctng-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;gap:8px;}
+.ctng-row:last-of-type{border-bottom:none;}
+.ctng-lbl{color:var(--text-3);font-weight:500;flex:1;}
+.ctng-val{font-family:var(--mono);font-weight:700;font-size:12px;color:var(--text);white-space:nowrap;}
+.ctng-val.pos{color:var(--green);}
+.ctng-val.neg{color:var(--red);}
+.ctng-divider{height:1.5px;background:var(--border);margin:10px 0 8px;}
+.ctng-combined-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:4px;}
+.ctng-combined-val{font-family:var(--mono);font-size:24px;font-weight:800;line-height:1;}
+.ctng-combined-val.pos{color:var(--green);}
+.ctng-combined-val.neg{color:var(--red);}
+
+/* ── ASSET BREAKDOWN ─────────────────────── */
+.asset-section-label{font-size:11px;font-weight:700;color:var(--text-2);display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.asset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.asset-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-sm);}
+.asset-card-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin-bottom:12px;display:flex;align-items:center;gap:4px;}
+.asset-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);gap:8px;}
+.asset-row:last-of-type{border-bottom:none;}
+.asset-row-label{font-size:11px;color:var(--text-3);font-weight:500;display:flex;align-items:center;gap:4px;}
+.asset-row-val{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;}
+.asset-row-val.home{color:#7c3aed;}
+.asset-row-val.liquid{color:var(--blue-dark);}
+.asset-row-val.equity{color:var(--green);}
+.asset-divider{height:1.5px;background:var(--border);margin:8px 0;}
+.asset-total-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-3);margin-bottom:3px;}
+.asset-total-val{font-family:var(--mono);font-size:20px;font-weight:800;color:var(--text);}
+.asset-bar-wrap{display:flex;height:8px;border-radius:999px;overflow:hidden;margin-top:10px;gap:2px;}
+.asset-bar-home{background:#7c3aed;border-radius:999px 0 0 999px;transition:width 0.5s ease;}
+.asset-bar-liquid{background:var(--blue-l);border-radius:0 999px 999px 0;transition:width 0.5s ease;}
+.asset-bar-single{border-radius:999px;}
+.asset-legend{display:flex;gap:10px;margin-top:6px;}
+.asset-legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-3);}
+.asset-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -534,6 +597,64 @@ tr:hover td{background:var(--surface2);}
           </label>
         </div>
       </div>
+
+      <div class="field-section" style="margin-top:4px;">
+        <div class="field-section-label">Retirement Analysis</div>
+        <div class="adv-row" style="margin-bottom:10px;">
+          <div class="adv-info">
+            <div class="adv-name">Enable Retirement Analysis <span class="info">i<span class="tip">Model what happens at retirement. Set a start year (e.g. year 31) and an outside portfolio value. From that year onward, housing costs are drawn from the combined investment pool (outside portfolio + any scenario investments). Shows how long each scenario's portfolio lasts under real-world housing cost pressure.</span></span></div>
+            <div class="adv-desc" id="retireSub">Off — standard comparison only</div>
+          </div>
+          <label class="pill-sw">
+            <input type="checkbox" id="toggleRetire" onchange="handleRetireToggle()"/>
+            <div class="pill-tr"></div>
+            <div class="pill-th"></div>
+          </label>
+        </div>
+        <div id="retireFields" style="display:none;">
+          <div class="field">
+            <div class="field-label">Retirement Start Year <span class="info">i<span class="tip">The year you retire. Housing costs are deducted from the total investment pool from this year through the end of the window. Must be between 1 and the total number of years.</span></span></div>
+            <div class="input-wrap">
+              <input type="number" id="retireStartYear" value="31" min="1" step="1" oninput="onInputChange()"/>
+              <span class="input-affix suffix">yr</span>
+            </div>
+            <div class="field-hint" id="retireStartNote">Costs deducted from portfolio starting year 31</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Outside Portfolio Value <span class="info">i<span class="tip">External investments (401k, brokerage, etc.) that grow at the same rate set in the Invest tab. Added to each scenario's existing investments at the retirement start year. Does not affect True Net Gain — it's tracked separately.</span></span></div>
+            <div class="input-wrap">
+              <span class="input-affix">$</span>
+              <input type="number" id="outsidePortfolio" value="2000000" min="0" step="10000" oninput="onInputChange()"/>
+            </div>
+            <div class="field-hint blue" id="outsidePortfolioNote">Grows at invest return rate; housing costs deducted annually</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-section" style="margin-top:4px;">
+        <div class="field-section-label">Extended Window</div>
+        <div class="adv-row" style="margin-bottom:10px;">
+          <div class="adv-info">
+            <div class="adv-name">Add Extra Years <span class="info">i<span class="tip">Extend all calculations beyond the base window (30 yrs + rent period). Costs, investment gains, home appreciation, and retirement drawdowns all continue for this many additional years. Useful for seeing long-term divergence or bridging to a specific life milestone.</span></span></div>
+            <div class="adv-desc" id="extraYearsSub">Off — standard window only</div>
+          </div>
+          <label class="pill-sw">
+            <input type="checkbox" id="toggleExtraYears" onchange="handleExtendToggle()"/>
+            <div class="pill-tr"></div>
+            <div class="pill-th"></div>
+          </label>
+        </div>
+        <div id="extraYearsFields" style="display:none;">
+          <div class="field">
+            <div class="field-label">Additional Years <span class="info">i<span class="tip">Number of years to add beyond the base window. All scenario loops, charts, and retirement drawdowns extend through the full new period.</span></span></div>
+            <div class="input-wrap">
+              <input type="number" id="extraYearsVal" value="3" min="1" max="50" step="1" oninput="onInputChange()"/>
+              <span class="input-affix suffix">yrs</span>
+            </div>
+            <div class="field-hint blue" id="extraYearsNote">Total window: 38 years</div>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div><!-- end sidebar-panels -->
@@ -637,6 +758,7 @@ function updateLabels() {
   document.getElementById('closingCostLabel').textContent = `Closing costs: ${fmt(cc)}`;
   const ti = hp * (parseFloat(document.getElementById('taxInsPct').value)||0) / 100;
   document.getElementById('taxInsLabel').textContent = `≈ ${fmt(ti)} / year`;
+  updateExtraYearsNote();
 }
 function handleAdvToggle() {
   const dpDiffOn   = document.getElementById('toggleDpDiff').checked;
@@ -655,19 +777,110 @@ function handleAdvToggle() {
   onInputChange();
 }
 
-// Info icons
+function handleRetireToggle() {
+  const on = document.getElementById('toggleRetire').checked;
+  document.getElementById('retireFields').style.display = on ? '' : 'none';
+  document.getElementById('retireSub').textContent = on ? 'On — retirement portfolio analysis active' : 'Off — standard comparison only';
+  onInputChange();
+}
+function handleExtendToggle() {
+  const on = document.getElementById('toggleExtraYears').checked;
+  document.getElementById('extraYearsFields').style.display = on ? '' : 'none';
+  document.getElementById('extraYearsSub').textContent = on ? 'On — window extended beyond base period' : 'Off — standard window only';
+  onInputChange();
+}
+function updateExtraYearsNote() {
+  const on = document.getElementById('toggleExtraYears').checked;
+  if (!on) return;
+  const extra = parseInt(document.getElementById('extraYearsVal').value) || 0;
+  const base  = 30 + rentPeriodYears;
+  const note  = document.getElementById('extraYearsNote');
+  if (note) note.textContent = `Total window: ${base + extra} years (${base} base + ${extra} extra)`;
+}
+function updateRetireNote() {
+  const yr = parseInt(document.getElementById('retireStartYear').value)||31;
+  const note = document.getElementById('retireStartNote');
+  if (note) note.textContent = `Costs deducted from portfolio starting year ${yr}`;
+}
 function bindInfoIcons() {
   document.querySelectorAll('.info').forEach(icon => {
-    icon.addEventListener('click', e => {
+    // Skip if already bound
+    if (icon.dataset.tipBound) return;
+    icon.dataset.tipBound = '1';
+
+    function positionTip(tip) {
+      const rect = icon.getBoundingClientRect();
+      const tipW = 220;
+      const margin = 10;
+      const spaceRight = window.innerWidth - rect.right;
+      const spaceLeft  = rect.left;
+
+      tip.classList.remove('tip-left');
+      tip.style.display = 'block';
+
+      if (spaceRight >= tipW + margin + 16) {
+        // Enough room to the right
+        tip.style.left = (rect.right + 8) + 'px';
+        tip.style.right = 'auto';
+      } else if (spaceLeft >= tipW + margin + 16) {
+        // Flip to the left
+        tip.classList.add('tip-left');
+        tip.style.right = (window.innerWidth - rect.left + 8) + 'px';
+        tip.style.left = 'auto';
+      } else {
+        // Not enough room either side — anchor below, clamped horizontally
+        const leftPos = Math.min(
+          Math.max(margin, rect.left - tipW / 2),
+          window.innerWidth - tipW - margin
+        );
+        tip.style.left = leftPos + 'px';
+        tip.style.right = 'auto';
+        tip.style.top = (rect.bottom + 6) + 'px';
+        tip.style.transform = 'none';
+        return;
+      }
+
+      // Vertical: center on icon, clamped within viewport
+      const tipH = tip.offsetHeight || 60;
+      const idealTop = rect.top + rect.height / 2 - tipH / 2;
+      const clampedTop = Math.min(
+        Math.max(margin, idealTop),
+        window.innerHeight - tipH - margin
+      );
+      tip.style.top = clampedTop + 'px';
+      tip.style.transform = 'none';
+    }
+
+    icon.addEventListener('mouseenter', function() {
+      const tip = this.querySelector('.tip');
+      if (tip) positionTip(tip);
+    });
+    icon.addEventListener('mouseleave', function() {
+      const tip = this.querySelector('.tip');
+      if (tip && !this.classList.contains('open')) tip.style.display = 'none';
+    });
+    icon.addEventListener('click', function(e) {
       e.stopPropagation();
-      const isOpen = icon.classList.contains('open');
-      document.querySelectorAll('.info.open').forEach(i => i.classList.remove('open'));
-      if (!isOpen) icon.classList.add('open');
+      const isOpen = this.classList.contains('open');
+      document.querySelectorAll('.info.open').forEach(i => {
+        i.classList.remove('open');
+        const t = i.querySelector('.tip');
+        if (t) t.style.display = 'none';
+      });
+      if (!isOpen) {
+        this.classList.add('open');
+        const tip = this.querySelector('.tip');
+        if (tip) positionTip(tip);
+      }
     });
   });
 }
 document.addEventListener('click', () => {
-  document.querySelectorAll('.info.open').forEach(i => i.classList.remove('open'));
+  document.querySelectorAll('.info.open').forEach(i => {
+    i.classList.remove('open');
+    const t = i.querySelector('.tip');
+    if (t) t.style.display = 'none';
+  });
 });
 
 // ────────────────────────────────────────────
@@ -724,6 +937,11 @@ function calculate() {
   const applyDpDiff  = document.getElementById('toggleDpDiff').checked;
   const applyCapGains = document.getElementById('toggleCapGains').checked;
   const applySellFee  = document.getElementById('toggleSellFee').checked;
+  const applyRetire   = document.getElementById('toggleRetire').checked;
+  const outsidePortfolio = applyRetire ? (parseFloat(document.getElementById('outsidePortfolio').value)||0) : 0;
+  const retireStartYear  = applyRetire ? Math.max(1, parseInt(document.getElementById('retireStartYear').value)||31) : 0;
+  const applyExtraYears  = document.getElementById('toggleExtraYears').checked;
+  const extraYears       = applyExtraYears ? Math.max(0, parseInt(document.getElementById('extraYearsVal').value)||0) : 0;
   const CAP_GAINS_RATE = 0.15;
   const SELL_FEE_RATE  = 0.06;
   const dp = dpMode === 'pct'
@@ -731,7 +949,7 @@ function calculate() {
     : parseFloat(document.getElementById('downAmt').value)||0;
   const dp20 = homePrice * 0.20;
   const dpDiff = Math.max(dp20 - dp, 0);
-  const YEARS = 30 + rentPeriodYears;
+  const YEARS = 30 + rentPeriodYears + extraYears;
 
   // ---- SCENARIO A: BUY NOW ----
   const loanA = homePrice - dp;
@@ -943,6 +1161,79 @@ function calculate() {
     if (inv >= finalBuyWealth) { returnToMatchBuy = testRet.toFixed(1); break; }
   }
 
+  // ---- RETIREMENT ANALYSIS (optional) ----
+  // Tracks a combined portfolio (outsidePortfolio + scenario investment) from retireStartYear
+  // Each year: portfolio grows at investReturn%, then annual housing cost is deducted.
+  // Does NOT affect TNG or standard wealth — purely supplemental.
+  let retireData = null;
+  if (applyRetire && retireStartYear >= 1 && retireStartYear <= YEARS) {
+    // Helper: compute annual housing cost for each scenario at a given year
+    // Buy Now costs: mortgage P&I + taxIns + maintenance (P&I = 0 after loanTerm)
+    // Rent+Invest costs: current rent
+    // RTB costs: mortgage P&I (if active) + taxIns + maintenance after buying
+
+    // Pre-build annual cost arrays for each scenario over YEARS
+    const buyCosts   = buyNowData.map(d => d.annualCost);
+
+    // Rent annual costs year by year
+    const rentCosts = [];
+    let _rm = startRent;
+    for (let y = 1; y <= YEARS; y++) { rentCosts.push(_rm * 12); _rm *= (1 + rentIncrease/100); }
+
+    // RTB annual costs — mortgage+taxIns+maint when owning, rent when renting
+    const rtbCosts = [];
+    let _rtbRent = startRent;
+    for (let y = 1; y <= YEARS; y++) {
+      if (y <= rentPeriodYears) {
+        rtbCosts.push(_rtbRent * 12);
+        _rtbRent *= (1 + rentIncrease/100);
+      } else {
+        // Use stored cumulativeCost delta between years to get annual cost
+        const prevCost = y > 1 ? (rentThenBuyData[y-2]?.cumulativeCost || 0) : 0;
+        // For rent period we already captured rent; for post-buy we need housing cost
+        // Recompute from rtb cumulative deltas (more reliable)
+        if (y > rentPeriodYears) {
+          const cur = rentThenBuyData[y-1]?.cumulativeCost || 0;
+          const prv = rentThenBuyData[y-2]?.cumulativeCost || (y === rentPeriodYears+1 ? (rentThenBuyData[rentPeriodYears-1]?.cumulativeCost||0) : 0);
+          rtbCosts.push(Math.max(cur - prv, 0));
+        } else {
+          rtbCosts.push(_rtbRent * 12);
+        }
+      }
+    }
+
+    // Simulate retirement portfolios from retireStartYear to YEARS
+    const clampedStart = Math.min(retireStartYear, YEARS);
+
+    function simulateRetire(costArray) {
+      let portfolio = outsidePortfolio; // outside portfolio only — scenario investment gains already captured in TNG
+      const yearData = [];
+      for (let y = clampedStart; y <= YEARS; y++) {
+        const housing = costArray[y-1] || 0;
+        const grossWithdrawal = housing / 0.85;        // gross up for 15% flat withdrawal tax: need $58,824 out to net $50,000
+        portfolio -= grossWithdrawal;                  // deduct grossed-up withdrawal first
+        const depleted = portfolio <= 0;
+        if (portfolio < 0) portfolio = 0;
+        portfolio *= (1 + investReturn / 100);         // remaining balance grows: (balance - gross withdrawal) * (1 + r)
+        yearData.push({ year: y, portfolio, housing, grossWithdrawal, depleted });
+      }
+      return yearData;
+    }
+
+    const buyRetireData  = simulateRetire(buyCosts);
+    const rentRetireData = simulateRetire(rentCosts);
+    const rtbRetireData  = rentPeriodYears > 0 ? simulateRetire(rtbCosts) : null;
+
+    retireData = {
+      startYear: clampedStart,
+      endYear: YEARS,
+      outsidePortfolio,
+      buy:  { data: buyRetireData  },
+      rent: { data: rentRetireData },
+      rtb:  rtbRetireData ? { data: rtbRetireData } : null,
+    };
+  }
+
   // Store globally
   window._ks = {
     homePrice, dp, dp20, dpDiff, closingCosts, rentInvestBase, mortgageRate, loanTerm, appreciation, taxInsPct, maintenancePct,
@@ -954,7 +1245,9 @@ function calculate() {
     breakevenYear, rtbBreakevenYear, breakevenCrossoverCount,
     totalMortgagePaid, totalTaxInsPaid, totalMaintenancePaid,
     maxRateStillWins, minApprStillWins, returnToMatchBuy,
-    buyNowData, rentFullData, rentThenBuyData, YEARS
+    buyNowData, rentFullData, rentThenBuyData, YEARS,
+    applyRetire, retireStartYear, outsidePortfolio, retireData,
+    applyExtraYears, extraYears
   };
 
   // Update dp diff label
@@ -982,7 +1275,9 @@ function calculate() {
     breakevenYear, breakevenCrossoverCount, rtbBreakevenYear,
     winner, YEARS, rentPeriodYears,
     buyNowData, rentFullData, rentThenBuyData,
-    startRent, rentIncrease
+    startRent, rentIncrease,
+    applyRetire, retireStartYear, outsidePortfolio, retireData,
+    applyExtraYears, extraYears
   });
 }
 
@@ -1009,7 +1304,7 @@ function renderResults(k) {
           : `Based on these numbers, renting and investing builds more wealth over ${k.YEARS} years.`
         }</span></span>
       </div>
-      <div class="compare-note">📊 Comparing all scenarios over <strong>${k.YEARS} years</strong>${k.rentPeriodYears>0?` — extended to match the ${k.rentPeriodYears}-year rent period`:''}</div>
+      <div class="compare-note">📊 Comparing all scenarios over <strong>${k.YEARS} years</strong>${k.rentPeriodYears>0?` — extended to match the ${k.rentPeriodYears}-year rent period`:''}${k.applyExtraYears&&k.extraYears>0?` <span style="background:var(--amber-pale);border:1px solid #fde68a;border-radius:4px;padding:1px 6px;font-size:10px;color:var(--amber);font-weight:700;">+${k.extraYears} extra yrs</span>`:''}</div>
 
       <div class="metric-row" style="margin-top:10px;">
         <div class="metric-card ${k.winner==='buy'?'winner-card':''}">
@@ -1043,6 +1338,11 @@ function renderResults(k) {
         ${renderTNGCards(k)}
       </div>
     </div>
+
+    <!-- ASSET BREAKDOWN -->
+    ${renderAssetBreakdown(k)}
+
+    ${k.applyRetire && k.retireData ? renderRetireSection(k) : ''}
 
     <!-- DETAIL TABS -->
     <div class="detail-tabs-wrap">
@@ -1141,8 +1441,324 @@ function renderTNGCards(k) {
 }
 
 // ────────────────────────────────────────────
-// DETAIL TABS
+// RETIREMENT SECTION RENDERER
 // ────────────────────────────────────────────
+function renderRetireSection(k) {
+  const rd = k.retireData;
+  const yrs = rd.endYear - rd.startYear + 1;
+  const inv = k.investReturn;
+
+  function retireCard(name, icon, scenData, color) {
+    if (!scenData) return `<div class="retire-card" style="opacity:0.4;"><div class="retire-card-name">${icon} ${name}</div><div style="font-size:11px;color:var(--text-3);">N/A — scenario not active</div></div>`;
+    const last = scenData.data[scenData.data.length - 1];
+    const final = last?.portfolio ?? 0;
+    const depleteIdx = scenData.data.findIndex(d => d.depleted);
+    const depleteYear = depleteIdx >= 0 ? scenData.data[depleteIdx].year : null;
+    const totalHousingDrawn   = scenData.data.reduce((s,d) => s + d.housing, 0);
+    const totalGrossWithdrawn = scenData.data.reduce((s,d) => s + d.grossWithdrawal, 0);
+    const totalTaxCost        = totalGrossWithdrawn - totalHousingDrawn;
+    const borderStyle = color === 'green' ? 'border-color:var(--green-border);' : color === 'blue' ? 'border-color:var(--blue);' : '';
+
+    return `
+    <div class="retire-card" style="${borderStyle}">
+      <div class="retire-card-name">${icon} ${name}</div>
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:6px;">Outside portfolio at yr ${rd.startYear}</div>
+      <div class="retire-row" style="border-bottom:1.5px solid var(--border);padding-bottom:6px;margin-bottom:4px;">
+        <span class="retire-lbl" style="font-weight:700;color:var(--text);">Starting outside portfolio</span>
+        <span class="retire-val hi" style="font-size:13px;">${fmtK(rd.outsidePortfolio)}</span>
+      </div>
+      <div class="retire-row">
+        <span class="retire-lbl">Housing costs (yr ${rd.startYear}–${rd.endYear})</span>
+        <span class="retire-val neg">−${fmtK(totalHousingDrawn)}</span>
+      </div>
+      <div class="retire-row">
+        <span class="retire-lbl">15% withdrawal tax on draws</span>
+        <span class="retire-val neg">−${fmtK(totalTaxCost)}</span>
+      </div>
+      <div class="retire-row">
+        <span class="retire-lbl">Total gross withdrawn</span>
+        <span class="retire-val neg">−${fmtK(totalGrossWithdrawn)}</span>
+      </div>
+      <div class="retire-row">
+        <span class="retire-lbl">Growth rate applied</span>
+        <span class="retire-val">${inv}%/yr</span>
+      </div>
+      <div class="retire-final ${final >= rd.outsidePortfolio ? 'pos' : final > 0 ? '' : 'neg'}">${fmtK(Math.max(final, 0))}</div>
+      <div class="retire-sublabel">Outside portfolio at end of yr ${rd.endYear}</div>
+      ${depleteYear ? `<div style="margin-top:6px;padding:4px 8px;background:#fff1f2;border:1px solid #fca5a5;border-radius:var(--radius-xs);font-size:10px;color:var(--red);font-weight:700;">⚠ Portfolio depleted at year ${depleteYear}</div>` : `<div style="margin-top:6px;padding:4px 8px;background:var(--green-pale);border:1px solid var(--green-border);border-radius:var(--radius-xs);font-size:10px;color:var(--green);font-weight:700;">✓ Portfolio survives full window</div>`}
+    </div>`;
+  }
+
+  return `
+  <div class="retire-section">
+    <div class="retire-section-label">
+      🎯 Retirement Analysis — Starting Year ${rd.startYear}
+      <span class="info">i<span class="tip">From year ${rd.startYear} onward, each scenario's investment pool (outside portfolio + any existing scenario investments) grows at ${k.investReturn}%/yr and housing costs are deducted annually. True Net Gain is unaffected — this is a separate post-retirement view.</span></span>
+    </div>
+    <div class="retire-note">
+      Outside portfolio: <strong>${fmtK(rd.outsidePortfolio)}</strong> — grows at ${k.investReturn}%/yr. Each year's housing cost is grossed up by ÷0.85 to account for a flat 15% withdrawal tax (e.g. $50K needed → $58,824 withdrawn). Scenario investment gains are <strong>not</strong> included here — they are already captured in True Net Gain above.
+    </div>
+    <div class="retire-grid">
+      ${retireCard('Buy Now', '🏠', rd.buy, 'green')}
+      ${retireCard('Rent + Invest', '📈', rd.rent, 'blue')}
+      ${k.rentPeriodYears > 0 ? retireCard('Rent→Buy', '📅', rd.rtb, '') : retireCard('Rent→Buy', '📅', null, '')}
+    </div>
+
+    ${renderCombinedTNG(k)}
+  </div>`;
+}
+
+// ────────────────────────────────────────────
+// COMBINED TRUE NET GAIN RENDERER
+// ────────────────────────────────────────────
+function renderCombinedTNG(k) {
+  const rd = k.retireData;
+
+  // Pull final-year asset values for each scenario (same logic as renderAssetBreakdown)
+  const lastBuy  = k.buyNowData[k.YEARS-1];
+  const lastRent = k.rentFullData[k.YEARS-1];
+  const lastRTB  = k.rentThenBuyData[k.YEARS-1];
+
+  const buyHomeEquity = lastBuy.equity;
+  const buyLiquid     = lastBuy.sideInvested || 0;
+
+  const rentLiquid    = lastRent.investedValue;
+
+  const rtbLiquid     = lastRTB?.investedValue || 0;
+  const rtbHomeEquity = k.rentPeriodYears > 0 ? ((lastRTB?.wealth || 0) - rtbLiquid) : 0;
+
+  // Final retirement portfolio value per scenario
+  function retireFinalVal(scenData) {
+    if (!scenData) return 0;
+    return scenData.data[scenData.data.length - 1]?.portfolio ?? 0;
+  }
+
+  const retirePortBuy  = retireFinalVal(rd.buy);
+  const retirePortRent = retireFinalVal(rd.rent);
+  const retirePortRTB  = rd.rtb ? retireFinalVal(rd.rtb) : 0;
+
+  // Retirement net gain = final portfolio value − starting outside portfolio
+  function retireNetGain(scenData) {
+    if (!scenData) return null;
+    const finalVal = scenData.data[scenData.data.length - 1]?.portfolio ?? 0;
+    const startVal = rd.outsidePortfolio;
+    return finalVal - startVal;
+  }
+
+  const retireGainBuy  = retireNetGain(rd.buy);
+  const retireGainRent = retireNetGain(rd.rent);
+  const retireGainRTB  = rd.rtb ? retireNetGain(rd.rtb) : null;
+
+  const combinedBuy  = retireGainBuy  !== null ? k.trueNetBuy  + retireGainBuy  : null;
+  const combinedRent = retireGainRent !== null ? k.trueNetRent + retireGainRent : null;
+  const combinedRTB  = retireGainRTB  !== null ? k.trueNetRTB  + retireGainRTB  : null;
+
+  const allCombined = [combinedBuy, combinedRent, combinedRTB].filter(v => v !== null);
+  const bestCombined  = allCombined.length ? Math.max(...allCombined) : null;
+  const worstCombined = allCombined.length ? Math.min(...allCombined) : null;
+
+  function cardBorder(val) {
+    if (val === null) return '';
+    if (val === bestCombined)  return 'border-color:var(--green-border);box-shadow:0 0 0 1px var(--green-border);';
+    if (val === worstCombined) return 'border-color:#fca5a5;';
+    return '';
+  }
+  function badge(val) {
+    if (val === null) return '';
+    if (val === bestCombined && allCombined.length > 1)  return `<div style="margin-top:6px;padding:3px 8px;background:var(--green-pale);border:1px solid var(--green-border);border-radius:var(--radius-xs);font-size:10px;color:var(--green);font-weight:700;display:inline-block;">✓ Best combined outcome</div>`;
+    if (val === worstCombined && allCombined.length > 1) return `<div style="margin-top:6px;padding:3px 8px;background:#fff1f2;border:1px solid #fca5a5;border-radius:var(--radius-xs);font-size:10px;color:var(--red);font-weight:700;display:inline-block;">▲ Lowest combined outcome</div>`;
+    return '';
+  }
+
+  function assetMini(homeEquity, liquid, retirePort, hasHome) {
+    // Three buckets: home equity (illiquid), scenario liquid investments, outside retirement portfolio
+    const total = Math.max((homeEquity > 0 ? homeEquity : 0) + liquid + retirePort, 1);
+    function pct(v) { return Math.max(0, Math.round((v / total) * 100)); }
+    const homePct    = hasHome && homeEquity > 0 ? pct(homeEquity) : 0;
+    const liquidPct  = liquid > 0 ? pct(liquid) : 0;
+    const retirePct  = retirePort > 0 ? pct(retirePort) : 0;
+
+    const homeColor   = '#7c3aed';
+    const liquidColor = 'var(--blue-l)';
+    const retireColor = '#f59e0b';
+
+    return `
+    <div style="margin-top:10px;padding-top:10px;border-top:1.5px solid var(--border);">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-3);margin-bottom:7px;">Asset Breakdown</div>
+      ${hasHome && homeEquity > 0 ? `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;">
+        <span style="display:flex;align-items:center;gap:5px;color:var(--text-3);"><span style="width:8px;height:8px;border-radius:50%;background:${homeColor};display:inline-block;flex-shrink:0;"></span>Home equity</span>
+        <span style="font-family:var(--mono);font-weight:700;font-size:11px;color:${homeColor};">${fmtK(homeEquity)}</span>
+      </div>` : ''}
+      ${liquid > 0 ? `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;">
+        <span style="display:flex;align-items:center;gap:5px;color:var(--text-3);"><span style="width:8px;height:8px;border-radius:50%;background:${liquidColor};display:inline-block;flex-shrink:0;"></span>Liquid investments</span>
+        <span style="font-family:var(--mono);font-weight:700;font-size:11px;color:var(--blue-dark);">${fmtK(liquid)}</span>
+      </div>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;">
+        <span style="display:flex;align-items:center;gap:5px;color:var(--text-3);"><span style="width:8px;height:8px;border-radius:50%;background:${retireColor};display:inline-block;flex-shrink:0;"></span>Retirement portfolio</span>
+        <span style="font-family:var(--mono);font-weight:700;font-size:11px;color:#d97706;">${fmtK(retirePort)}</span>
+      </div>
+      <div style="display:flex;height:6px;border-radius:999px;overflow:hidden;margin-top:7px;gap:2px;">
+        ${homePct > 0    ? `<div style="width:${homePct}%;background:${homeColor};border-radius:${liquidPct===0&&retirePct===0?'999px':'999px 0 0 999px'};"></div>` : ''}
+        ${liquidPct > 0  ? `<div style="width:${liquidPct}%;background:${liquidColor};border-radius:${homePct===0&&retirePct===0?'999px':homePct===0?'999px 0 0 999px':retirePct===0?'0 999px 999px 0':'0'};"></div>` : ''}
+        ${retirePct > 0  ? `<div style="width:${retirePct}%;background:${retireColor};border-radius:${homePct===0&&liquidPct===0?'999px':'0 999px 999px 0'};"></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  function combinedCard(icon, name, tng, retireGain, combined, tngLabel, homeEquity, liquid, retirePort, hasHome) {
+    if (combined === null) {
+      return `<div class="combined-tng-card" style="opacity:0.4;">
+        <div class="ctng-name">${icon} ${name}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:8px;">N/A — scenario not active</div>
+      </div>`;
+    }
+    const retireSign = retireGain >= 0 ? '+' : '';
+    return `
+    <div class="combined-tng-card" style="${cardBorder(combined)}">
+      <div class="ctng-name">${icon} ${name}</div>
+      <div class="ctng-row">
+        <span class="ctng-lbl">${tngLabel} True Net Gain</span>
+        <span class="ctng-val ${tng >= 0 ? 'pos' : 'neg'}">${tng >= 0 ? '+' : ''}${fmtK(tng)}</span>
+      </div>
+      <div class="ctng-row">
+        <span class="ctng-lbl">Retirement portfolio net gain <span class="info">i<span class="tip">Final outside portfolio minus starting outside portfolio (${fmtK(rd.outsidePortfolio)}). Positive means the pool grew even after covering all housing costs. Scenario investment gains are excluded here — already in TNG above.</span></span></span>
+        <span class="ctng-val ${retireGain >= 0 ? 'pos' : 'neg'}">${retireSign}${fmtK(retireGain)}</span>
+      </div>
+      <div class="ctng-divider"></div>
+      <div class="ctng-combined-label">Combined True Net Gain</div>
+      <div class="ctng-combined-val ${combined >= 0 ? 'pos' : 'neg'}">${combined >= 0 ? '+' : ''}${fmtK(combined)}</div>
+      ${badge(combined)}
+      ${assetMini(homeEquity, liquid, retirePort, hasHome)}
+    </div>`;
+  }
+
+  const rtbActive = k.rentPeriodYears > 0;
+
+  return `
+  <div style="margin-top:16px;">
+    <div class="retire-section-label" style="background:linear-gradient(135deg,#eff4ff,#ecfdf5);border-color:var(--blue-border,#bfdbfe);">
+      ⚡ Combined True Net Gain — Housing + Retirement Portfolio
+      <span class="info">i<span class="tip">Adds each scenario's standard True Net Gain (wealth minus all housing expenses) to the net gain from the retirement portfolio (final retirement value minus starting retirement value). This gives a single number representing total wealth created across both the housing decision and the investment portfolio over the full window.</span></span>
+    </div>
+    <div class="retire-grid">
+      ${combinedCard('🏠', 'Buy Now',      k.trueNetBuy,  retireGainBuy,  combinedBuy,  'Buy Now',      buyHomeEquity, buyLiquid,  retirePortBuy,  true)}
+      ${combinedCard('📈', 'Rent + Invest', k.trueNetRent, retireGainRent, combinedRent, 'Rent+Invest',  0,             rentLiquid, retirePortRent, false)}
+      ${rtbActive
+        ? combinedCard('📅', `Rent ${k.rentPeriodYears}yr→Buy`, k.trueNetRTB, retireGainRTB, combinedRTB, 'Rent→Buy', rtbHomeEquity, rtbLiquid, retirePortRTB, true)
+        : combinedCard('📅', 'Rent→Buy', null, null, null, '', 0, 0, 0, false)}
+    </div>
+  </div>`;
+}
+
+// ────────────────────────────────────────────
+// ASSET BREAKDOWN RENDERER
+// ────────────────────────────────────────────
+function renderAssetBreakdown(k) {
+  const lastBuy  = k.buyNowData[k.YEARS-1];
+  const lastRent = k.rentFullData[k.YEARS-1];
+  const lastRTB  = k.rentThenBuyData[k.YEARS-1];
+
+  // Buy Now: home equity + any side investment (liquid)
+  const buyHomeEquity  = lastBuy.equity;           // already sell-fee adjusted
+  const buyHomeGross   = lastBuy.homeValue;         // raw home value
+  const buyLiquid      = lastBuy.sideInvested || 0; // dp-diff side investment
+  const buyTotal       = buyHomeEquity + buyLiquid;
+
+  // Rent + Invest: no home, all liquid
+  const rentLiquid     = lastRent.investedValue;
+  const rentTotal      = rentLiquid;
+
+  // Rent→Buy: home equity + leftover investment portfolio
+  // wealth = rtbHomeEquity (sell-fee adjusted) + rtbInvAfterTax — so back out equity from stored values
+  const rtbActive      = k.rentPeriodYears > 0;
+  const rtbHomeGross   = lastRTB?.homeValue || 0;
+  const rtbLiquid      = lastRTB?.investedValue || 0;
+  const rtbHomeEquity  = rtbActive ? ((lastRTB?.wealth || 0) - rtbLiquid) : 0; // already sell-fee adjusted by calculate loop
+  const rtbTotal       = (rtbHomeEquity > 0 ? rtbHomeEquity : 0) + rtbLiquid;
+
+  // Max total for bar scaling
+  const maxTotal = Math.max(buyTotal, rentTotal, rtbActive ? rtbTotal : 0, 1);
+
+  function barPct(val, total) {
+    return total <= 0 ? 0 : Math.round((val / total) * 100);
+  }
+
+  function assetCard(name, icon, homeEquity, homeGross, liquid, total, hasHome, applySellFee) {
+    const homePct   = barPct(homeEquity, total);
+    const liquidPct = barPct(liquid, total);
+    const totalBarPct = Math.round((total / maxTotal) * 100);
+
+    const homeBar   = hasHome && homeEquity > 0
+      ? `<div class="asset-bar-home${liquid <= 0 ? ' asset-bar-single' : ''}" style="width:${homePct}%"></div>`
+      : '';
+    const liquidBar = liquid > 0
+      ? `<div class="asset-bar-liquid${!hasHome || homeEquity <= 0 ? ' asset-bar-single' : ''}" style="width:${liquidPct}%"></div>`
+      : '';
+
+    return `
+    <div class="asset-card">
+      <div class="asset-card-name">${icon} ${name}</div>
+
+      ${hasHome ? `
+      <div class="asset-row">
+        <span class="asset-row-label">🏠 Home value (gross) <span class="info">i<span class="tip">The home's market value at year ${k.YEARS} before any selling fees or remaining loan is deducted.</span></span></span>
+        <span class="asset-row-val home">${fmtK(homeGross)}</span>
+      </div>
+      <div class="asset-row">
+        <span class="asset-row-label">🏠 Home equity${applySellFee ? ' (after 6% fee)' : ''} <span class="info">i<span class="tip">Home market value minus the remaining mortgage balance${applySellFee ? ', then minus the 6% selling fee' : ''}. This is what you would walk away with if you sold.</span></span></span>
+        <span class="asset-row-val equity">${fmtK(homeEquity)}</span>
+      </div>` : `
+      <div class="asset-row">
+        <span class="asset-row-label">🏠 Home equity</span>
+        <span class="asset-row-val" style="color:var(--text-4);">None — renting</span>
+      </div>`}
+
+      <div class="asset-row">
+        <span class="asset-row-label">📈 Liquid investments <span class="info">i<span class="tip">${hasHome
+          ? (liquid > 0
+            ? 'The invested down payment difference (actual dp vs 20%) that has been compounding alongside the mortgage.'
+            : 'No liquid investment portfolio — full down payment was ≥ 20% with no dp-difference investing enabled.')
+          : 'The full down payment + closing cost equivalent invested from day one and compounded over the full window.'
+        }</span></span></span>
+        <span class="asset-row-val liquid">${liquid > 0 ? fmtK(liquid) : '—'}</span>
+      </div>
+
+      <div class="asset-divider"></div>
+      <div class="asset-total-label">Total wealth at yr ${k.YEARS}</div>
+      <div class="asset-total-val">${fmtK(total)}</div>
+
+      <div class="asset-bar-wrap" style="width:${totalBarPct}%;min-width:${total > 0 ? '8px' : '0'};">
+        ${homeBar}${liquidBar}
+      </div>
+      ${hasHome || liquid > 0 ? `
+      <div class="asset-legend">
+        ${hasHome && homeEquity > 0 ? `<div class="asset-legend-item"><div class="asset-legend-dot" style="background:#7c3aed;"></div>Home equity ${homePct}%</div>` : ''}
+        ${liquid > 0 ? `<div class="asset-legend-item"><div class="asset-legend-dot" style="background:var(--blue-l);"></div>Liquid ${liquidPct}%</div>` : ''}
+      </div>` : ''}
+    </div>`;
+  }
+
+  return `
+  <div style="margin-top:4px;">
+    <div class="asset-section-label">
+      📊 Asset Breakdown at Year ${k.YEARS} — Home vs. Liquid Investments
+      <span class="info">i<span class="tip">Separates each scenario's final wealth into illiquid home equity and liquid investment portfolio. Total wealth is the same number shown in the summary cards above — this just shows what it's made of.</span></span>
+    </div>
+    <div class="asset-grid">
+      ${assetCard('Buy Now', '🏠', buyHomeEquity, buyHomeGross, buyLiquid, buyTotal, true, k.applySellFee)}
+      ${assetCard('Rent + Invest', '📈', 0, 0, rentLiquid, rentTotal, false, false)}
+      ${rtbActive
+        ? assetCard(`Rent ${k.rentPeriodYears}yr→Buy`, '📅', rtbHomeEquity, rtbHomeGross, rtbLiquid, rtbTotal, true, k.applySellFee)
+        : `<div class="asset-card" style="opacity:0.45;">
+            <div class="asset-card-name">📅 Rent→Buy</div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:8px;">Set rent period > 0 to activate this scenario.</div>
+          </div>`}
+    </div>
+  </div>`;
+}
+
 function openDetailTab(which) {
   const k = window._ks;
   if (!k) return;
